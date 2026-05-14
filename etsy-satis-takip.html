@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etsy Satış Takibi</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+  .container { max-width: 760px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 1.4rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+  h1 span { font-size: 1.4rem; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .card { background: #fff; border-radius: 10px; padding: 1rem; border: 1px solid #e8e8e0; }
+  .card-label { font-size: 11px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .card-value { font-size: 26px; font-weight: 600; color: #1a1a1a; }
+
+  .form-box { background: #fff; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid #e8e8e0; }
+  .form-box h2 { font-size: 14px; font-weight: 600; margin-bottom: 1rem; color: #444; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+  .field label { font-size: 11px; color: #888; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .field input, .field select {
+    width: 100%; height: 38px; border: 1px solid #ddd; border-radius: 8px;
+    padding: 0 10px; font-size: 14px; color: #1a1a1a; background: #fafafa;
+    outline: none; transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: #888; background: #fff; }
+  .btn-add {
+    height: 38px; padding: 0 18px; background: #1a1a1a; color: #fff;
+    border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: background 0.15s;
+  }
+  .btn-add:hover { background: #333; }
+  .btn-add:active { background: #000; transform: scale(0.98); }
+
+  .table-box { background: #fff; border-radius: 12px; border: 1px solid #e8e8e0; overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid #f0f0e8; }
+  .table-header h2 { font-size: 14px; font-weight: 600; color: #444; }
+  .refresh-btn {
+    background: none; border: 1px solid #ddd; border-radius: 6px;
+    padding: 4px 10px; font-size: 12px; color: #888; cursor: pointer; transition: all 0.15s;
+  }
+  .refresh-btn:hover { border-color: #888; color: #444; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { font-size: 11px; font-weight: 600; color: #888; text-align: left; padding: 8px 1.25rem; background: #fafaf8; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #f0f0e8; }
+  td { padding: 10px 1.25rem; border-bottom: 1px solid #f5f5f0; color: #1a1a1a; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafaf8; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .badge-selim  { background: #dbeafe; color: #1e40af; }
+  .badge-burak  { background: #dcfce7; color: #166534; }
+  .badge-umut   { background: #fef3c7; color: #92400e; }
+  .badge-umit   { background: #fce7f3; color: #9d174d; }
+  .badge-gokhan { background: #ede9fe; color: #5b21b6; }
+
+  .del-btn { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+  .del-btn:hover { color: #e24b4a; background: #fff0f0; }
+
+  .empty { text-align: center; padding: 2.5rem; color: #bbb; font-size: 14px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: #c0392b; }
+
+  .status { font-size: 11px; color: #aaa; text-align: right; margin-top: 1rem; }
+
+  @media (max-width: 540px) {
+    .form-row { grid-template-columns: 1fr 1fr; }
+    .btn-add { grid-column: span 2; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1><span>🛍️</span> Etsy Satış Takibi</h1>
+
+  <div class="cards">
+    <div class="card"><div class="card-label">Bugün</div><div class="card-value" id="stat-today">—</div></div>
+    <div class="card"><div class="card-label">Bu hafta</div><div class="card-value" id="stat-week">—</div></div>
+    <div class="card"><div class="card-label">Bu ay</div><div class="card-value" id="stat-month">—</div></div>
+    <div class="card"><div class="card-label">Toplam</div><div class="card-value" id="stat-all">—</div></div>
+  </div>
+
+  <div class="form-box">
+    <h2>Satış ekle</h2>
+    <div class="form-row">
+      <div class="field">
+        <label>Tarih</label>
+        <input type="date" id="inp-date" />
+      </div>
+      <div class="field">
+        <label>Kişi</label>
+        <select id="inp-person">
+          <option value="">Seç…</option>
+          <option>Selim</option>
+          <option>Burak</option>
+          <option>Umut</option>
+          <option>Ümit</option>
+          <option>Gökhan</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Adet</label>
+        <input type="number" id="inp-qty" min="1" value="1" />
+      </div>
+      <button class="btn-add" onclick="addEntry()">+ Ekle</button>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <div class="table-header">
+      <h2>Satış geçmişi</h2>
+      <button class="refresh-btn" onclick="loadData()">↻ Yenile</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tarih</th>
+          <th>Kişi</th>
+          <th>Adet</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body">
+        <tr><td colspan="4" class="empty">Yükleniyor…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="status" id="status-line"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API_KEY = '$2a$10$x.PFcXiAEHqG5FXauwTIa.qg2Kb0li59MNJtm9tfsqyCrO2uSbh2q';
+const BIN_NAME = 'etsy-satis-takip';
+let BIN_ID = localStorage.getItem('etsy_bin_id') || null;
+let entries = [];
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+document.getElementById('inp-date').value = today();
+
+function isoToTR(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  return `${day}.${m}.${y}`;
+}
+
+function badgeClass(person) {
+  const map = { 'Selim': 'selim', 'Burak': 'burak', 'Umut': 'umut', 'Ümit': 'umit', 'Gökhan': 'gokhan' };
+  return 'badge badge-' + (map[person] || 'selim');
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.className = 'toast', 2500);
+}
+
+function updateStatus(msg) {
+  document.getElementById('status-line').textContent = msg;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbl-body');
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">Henüz kayıt yok</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map(e => `
+    <tr>
+      <td>${isoToTR(e.date)}</td>
+      <td><span class="${badgeClass(e.person)}">${e.person}</span></td>
+      <td><strong>${e.qty}</strong></td>
+      <td><button class="del-btn" onclick="deleteEntry(${e.id})" title="Sil">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function updateStats() {
+  const td = today();
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const weekStr = weekStart.toISOString().slice(0, 10);
+  const monthStr = td.slice(0, 7);
+
+  let todaySum = 0, weekSum = 0, monthSum = 0, allSum = 0;
+  entries.forEach(e => {
+    allSum += e.qty;
+    if (e.date === td) todaySum += e.qty;
+    if (e.date >= weekStr) weekSum += e.qty;
+    if (e.date.startsWith(monthStr)) monthSum += e.qty;
+  });
+
+  document.getElementById('stat-today').textContent = todaySum;
+  document.getElementById('stat-week').textContent = weekSum;
+  document.getElementById('stat-month').textContent = monthSum;
+  document.getElementById('stat-all').textContent = allSum;
+}
+
+async function createBin(data) {
+  const res = await fetch('https://api.jsonbin.io/v3/b', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': API_KEY,
+      'X-Bin-Name': BIN_NAME,
+      'X-Bin-Private': 'false'
+    },
+    body: JSON.stringify({ entries: data })
+  });
+  const json = await res.json();
+  if (json.metadata && json.metadata.id) {
+    BIN_ID = json.metadata.id;
+    localStorage.setItem('etsy_bin_id', BIN_ID);
+  }
+  return json;
+}
+
+async function readBin() {
+  if (!BIN_ID) return null;
+  const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+    headers: { 'X-Master-Key': API_KEY }
+  });
+  const json = await res.json();
+  return json.record ? json.record.entries : null;
+}
+
+async function writeBin(data) {
+  if (!BIN_ID) {
+    await createBin(data);
+    return;
+  }
+  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Master-Key': API_KEY
+    },
+    body: JSON.stringify({ entries: data })
+  });
+}
+
+async function loadData() {
+  updateStatus('Güncelleniyor…');
+  try {
+    if (!BIN_ID) {
+      // Bin yoksa boş başlat
+      await createBin([]);
+      entries = [];
+    } else {
+      const data = await readBin();
+      entries = data || [];
+    }
+    renderTable();
+    updateStats();
+    updateStatus('Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'));
+  } catch (e) {
+    updateStatus('Bağlantı hatası');
+    showToast('Veriler yüklenemedi', true);
+  }
+}
+
+async function addEntry() {
+  const date = document.getElementById('inp-date').value;
+  const person = document.getElementById('inp-person').value;
+  const qty = parseInt(document.getElementById('inp-qty').value, 10);
+  if (!date || !person || !qty || qty < 1) {
+    showToast('Lütfen tüm alanları doldurun', true);
+    return;
+  }
+  const entry = { id: Date.now(), date, person, qty };
+  entries.push(entry);
+  renderTable();
+  updateStats();
+  try {
+    await writeBin(entries);
+    showToast('Satış eklendi ✓');
+    document.getElementById('inp-qty').value = 1;
+    updateStatus('Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'));
+  } catch {
+    entries = entries.filter(e => e.id !== entry.id);
+    renderTable();
+    updateStats();
+    showToast('Kayıt hatası!', true);
+  }
+}
+
+async function deleteEntry(id) {
+  const prev = [...entries];
+  entries = entries.filter(e => e.id !== id);
+  renderTable();
+  updateStats();
+  try {
+    await writeBin(entries);
+    showToast('Kayıt silindi');
+    updateStatus('Son güncelleme: ' + new Date().toLocaleTimeString('tr-TR'));
+  } catch {
+    entries = prev;
+    renderTable();
+    updateStats();
+    showToast('Silme hatası!', true);
+  }
+}
+
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>
