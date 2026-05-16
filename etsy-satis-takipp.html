@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etsy Satış Takibi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0d0d0f;
+  --bg2: #141417;
+  --bg3: #1c1c21;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f0;
+  --muted: #6b6b80;
+  --accent: #c8ff00;
+  --accent2: #7c6cff;
+  --accent3: #ff6c6c;
+  --selim: #60a5fa;
+  --burak: #4ade80;
+  --umut: #fbbf24;
+  --umit: #f472b6;
+  --gokhan: #a78bfa;
+  --ma: #38bdf8;
+  --mb: #34d399;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* BG GLOW */
+body::before {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124,108,255,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -10%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(200,255,0,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  animation: fadeUp 0.6s ease both;
+}
+.header-left h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #fff;
+}
+.header-left h1 span { color: var(--accent); }
+.header-left p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 300;
+}
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.live-dot::before {
+  content: '';
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s ease infinite;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 2rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.tab {
+  flex: 1;
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.2s;
+  text-align: center;
+}
+.tab.active {
+  background: var(--bg3);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.tab:hover:not(.active) { color: var(--text); }
+
+/* STAT CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.15s ease both;
+}
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.card:nth-child(1)::after { background: var(--accent); }
+.card:nth-child(2)::after { background: var(--accent2); }
+.card:nth-child(3)::after { background: var(--accent3); }
+.card:nth-child(4)::after { background: var(--ma); }
+.card:hover::after { opacity: 1; }
+.card-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.card-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+}
+.card-icon {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  font-size: 18px;
+  opacity: 0.15;
+}
+
+/* FORM */
+.form-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+.form-box h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1.25rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 0.7fr auto;
+  gap: 10px;
+  align-items: end;
+}
+.field label {
+  font-size: 11px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.field input, .field select {
+  width: 100%;
+  height: 42px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 3px rgba(124,108,255,0.15);
+}
+.field select option { background: var(--bg3); }
+
+.btn-add {
+  height: 42px;
+  padding: 0 22px;
+  background: var(--accent);
+  color: #0d0d0f;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.2s;
+  letter-spacing: -0.01em;
+}
+.btn-add:hover { background: #d4ff20; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(200,255,0,0.3); }
+.btn-add:active { transform: scale(0.97); }
+
+/* TABLE */
+.table-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.6s 0.25s ease both;
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.table-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.refresh-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px;
+}
+.refresh-btn:hover { color: var(--text); border-color: var(--border2); }
+
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: left;
+  padding: 10px 1.5rem;
+  background: var(--bg);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 12px 1.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  transition: background 0.15s;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.025); }
+
+/* BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+.b-selim  { background: rgba(96,165,250,0.12); color: var(--selim); }
+.b-burak  { background: rgba(74,222,128,0.12); color: var(--burak); }
+.b-umut   { background: rgba(251,191,36,0.12);  color: var(--umut); }
+.b-umit   { background: rgba(244,114,182,0.12); color: var(--umit); }
+.b-gokhan { background: rgba(167,139,250,0.12); color: var(--gokhan); }
+.b-a { background: rgba(56,189,248,0.12); color: var(--ma); }
+.b-b { background: rgba(52,211,153,0.12); color: var(--mb); }
+
+.qty-badge {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+
+.del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  opacity: 0.5;
+}
+tr:hover .del-btn { opacity: 1; }
+.del-btn:hover { color: var(--accent3); background: rgba(255,108,108,0.1); }
+.empty { text-align: center; padding: 3rem; color: var(--muted); font-size: 14px; }
+
+/* CHARTS */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.chart-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: border-color 0.2s;
+}
+.chart-box:hover { border-color: var(--border2); }
+.chart-box h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1.25rem;
+}
+.chart-wrap { position: relative; height: 190px; }
+
+/* SUMMARY */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.summary-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+.summary-box h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1.25rem;
+}
+.p-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.p-row:last-child { border-bottom: none; }
+.p-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.p-name { font-size: 13px; min-width: 60px; }
+.p-bar-wrap { flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+.p-bar { height: 3px; border-radius: 2px; transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+.p-qty { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; min-width: 28px; text-align: right; color: #fff; }
+
+/* STATUS */
+.status { font-size: 11px; color: var(--muted); text-align: right; margin-top: 0.75rem; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 28px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-size: 13px;
+  opacity: 0;
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  z-index: 999;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok { border-color: rgba(200,255,0,0.3); color: var(--accent); }
+.toast.error { border-color: rgba(255,108,108,0.3); color: var(--accent3); }
+
+.hidden { display: none !important; }
+
+/* ANIMATIONS */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 8px var(--accent); }
+  50% { box-shadow: 0 0 16px var(--accent), 0 0 24px var(--accent); }
+}
+
+/* WELCOME SCREEN */
+.welcome-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+.welcome-overlay.hidden { display: none; }
+.welcome-card {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  animation: fadeUp 0.4s ease;
+}
+.welcome-card h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.welcome-card p { font-size: 13px; color: var(--muted); margin-bottom: 1.75rem; }
+.person-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.person-btn {
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.person-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(200,255,0,0.1); }
+.person-btn .p-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* CURRENT USER BADGE */
+.user-chip {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 5px 12px 5px 8px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.user-chip:hover { border-color: var(--border2); color: var(--text); }
+.user-chip .u-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* SETTINGS */
+.settings-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+.settings-box h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1.25rem;
+}
+.store-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.store-row label {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 70px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.store-input {
+  flex: 1;
+  height: 40px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.store-input:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(124,108,255,0.15); }
+.store-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.btn-save {
+  height: 40px; padding: 0 20px;
+  background: var(--accent); color: #0d0d0f;
+  border: none; border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn-save:hover { background: #d4ff20; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(200,255,0,0.25); }
+.settings-hint { font-size: 12px; color: var(--muted); margin-top: 1rem; line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .cards { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr 1fr; }
+  .btn-add { grid-column: span 2; justify-content: center; }
+  .chart-grid, .summary-grid { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME SCREEN -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-card">
+    <h2>👋 Hoş geldin!</h2>
+    <p>Devam etmek için kim olduğunu seç</p>
+    <div class="person-btns">
+      <button class="person-btn" onclick="selectUser('Selim')" style="--c:#60a5fa">
+        <div class="p-avatar" style="background:rgba(96,165,250,0.15);color:#60a5fa">S</div>
+        Selim
+      </button>
+      <button class="person-btn" onclick="selectUser('Burak')" style="--c:#4ade80">
+        <div class="p-avatar" style="background:rgba(74,222,128,0.15);color:#4ade80">B</div>
+        Burak
+      </button>
+      <button class="person-btn" onclick="selectUser('Umut')" style="--c:#fbbf24">
+        <div class="p-avatar" style="background:rgba(251,191,36,0.15);color:#fbbf24">U</div>
+        Umut
+      </button>
+      <button class="person-btn" onclick="selectUser('Ümit')" style="--c:#f472b6">
+        <div class="p-avatar" style="background:rgba(244,114,182,0.15);color:#f472b6">Ü</div>
+        Ümit
+      </button>
+      <button class="person-btn" style="grid-column:span 2" onclick="selectUser('Gökhan')" style="--c:#a78bfa">
+        <div class="p-avatar" style="background:rgba(167,139,250,0.15);color:#a78bfa">G</div>
+        Gökhan
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-left">
+      <h1>Etsy <span>Satış</span> Takibi</h1>
+      <p>Günlük satışları gerçek zamanlı takip et</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="user-chip" id="user-chip" onclick="changeUser()" title="Kullanıcıyı değiştir">
+        <div class="u-dot" id="chip-dot"></div>
+        <span id="chip-name">—</span>
+        <span style="opacity:0.4;font-size:10px">↺</span>
+      </button>
+      <div class="live-dot" id="live-status">Canlı</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('giris')">📋 Satış Girişi</button>
+    <button class="tab" onclick="showTab('ozet')">📊 Haftalık / Aylık</button>
+    <button class="tab" onclick="showTab('grafik')">📈 Grafikler</button>
+    <button class="tab" onclick="showTab('ayarlar')">⚙️ Ayarlar</button>
+  </div>
+
+  <!-- GİRİŞ -->
+  <div id="tab-giris">
+    <div class="cards">
+      <div class="card">
+        <div class="card-label">Bugün</div>
+        <div class="card-value" id="stat-today">0</div>
+        <div class="card-icon">☀️</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Bu Hafta</div>
+        <div class="card-value" id="stat-week">0</div>
+        <div class="card-icon">📅</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Bu Ay</div>
+        <div class="card-value" id="stat-month">0</div>
+        <div class="card-icon">🗓️</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Toplam</div>
+        <div class="card-value" id="stat-all">0</div>
+        <div class="card-icon">🛍️</div>
+      </div>
+    </div>
+
+    <div class="form-box">
+      <h2>Yeni Satış Ekle</h2>
+      <div class="form-row">
+        <div class="field"><label>Tarih</label><input type="date" id="inp-date" /></div>
+        <div class="field">
+          <label>Kişi</label>
+          <select id="inp-person">
+            <option value="">Seç…</option>
+            <option>Selim</option><option>Burak</option><option>Umut</option><option>Ümit</option><option>Gökhan</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Mağaza</label>
+          <select id="inp-store">
+            <option value="Mağaza A">Mağaza A</option>
+            <option value="Mağaza B">Mağaza B</option>
+          </select>
+        </div>
+        <div class="field"><label>Adet</label><input type="number" id="inp-qty" min="1" value="1" /></div>
+        <button class="btn-add" onclick="addEntry()">+ Ekle</button>
+      </div>
+    </div>
+
+    <div class="table-box">
+      <div class="table-header">
+        <h2>Satış Geçmişi</h2>
+        <button class="refresh-btn" onclick="loadData()">↻ Yenile</button>
+      </div>
+      <table>
+        <thead><tr><th>Tarih</th><th>Kişi</th><th>Mağaza</th><th>Adet</th><th></th></tr></thead>
+        <tbody id="tbl-body"><tr><td colspan="5" class="empty">Yükleniyor…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="status" id="status-line"></div>
+  </div>
+
+  <!-- ÖZET -->
+  <div id="tab-ozet" class="hidden">
+    <div class="summary-grid">
+      <div class="summary-box"><h3>Bu Hafta — Kişi Bazında</h3><div id="sw-person"></div></div>
+      <div class="summary-box"><h3>Bu Ay — Kişi Bazında</h3><div id="sm-person"></div></div>
+      <div class="summary-box"><h3>Bu Hafta — Mağaza Bazında</h3><div id="sw-store"></div></div>
+      <div class="summary-box"><h3>Bu Ay — Mağaza Bazında</h3><div id="sm-store"></div></div>
+    </div>
+  </div>
+
+  <!-- GRAFİK -->
+  <div id="tab-grafik" class="hidden">
+    <div class="chart-grid">
+      <div class="chart-box"><h3>Son 7 Gün — Günlük Toplam</h3><div class="chart-wrap"><canvas id="ch-daily"></canvas></div></div>
+      <div class="chart-box"><h3>Bu Ay — Kişi Başına</h3><div class="chart-wrap"><canvas id="ch-person"></canvas></div></div>
+      <div class="chart-box"><h3>Bu Ay — Mağaza Dağılımı</h3><div class="chart-wrap"><canvas id="ch-store"></canvas></div></div>
+      <div class="chart-box"><h3>Son 4 Hafta — Haftalık Toplam</h3><div class="chart-wrap"><canvas id="ch-weekly"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- AYARLAR -->
+  <div id="tab-ayarlar" class="hidden">
+    <div class="settings-box">
+      <h2>🏪 Mağaza İsimleri</h2>
+      <div class="store-row">
+        <div class="store-dot" style="background:#38bdf8"></div>
+        <label>1. Mağaza</label>
+        <input class="store-input" id="set-store-a" type="text" placeholder="Mağaza A" maxlength="40" />
+      </div>
+      <div class="store-row">
+        <div class="store-dot" style="background:#34d399"></div>
+        <label>2. Mağaza</label>
+        <input class="store-input" id="set-store-b" type="text" placeholder="Mağaza B" maxlength="40" />
+      </div>
+      <button class="btn-save" onclick="saveStoreNames()">Kaydet</button>
+      <p class="settings-hint" id="store-change-info">💡 İsimler kaydedildikten sonra tüm kullanıcılar güncellenen isimleri görecek. Eski kayıtlar da otomatik güncellenir.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_KEY = '$2a$10$x.PFcXiAEHqG5FXauwTIa.qg2Kb0li59MNJtm9tfsqyCrO2uSbh2q';
+const BIN_NAME = 'etsy-satis-takip';
+let BIN_ID = localStorage.getItem('etsy_bin_id') || null;
+let entries = [];
+let charts = {};
+let storeNames = { a: 'Mağaza A', b: 'Mağaza B', lastChangedBy: null, lastChangedAt: null };
+let currentUser = localStorage.getItem('etsy_current_user') || null;
+
+const PERSONS = ['Selim','Burak','Umut','Ümit','Gökhan'];
+const PCOLORS = { 'Selim':'#60a5fa','Burak':'#4ade80','Umut':'#fbbf24','Ümit':'#f472b6','Gökhan':'#a78bfa' };
+const SCOLORS_FIXED = ['#38bdf8','#34d399'];
+const PBADGE  = { 'Selim':'b-selim','Burak':'b-burak','Umut':'b-umut','Ümit':'b-umit','Gökhan':'b-gokhan' };
+
+function getStores() { return [storeNames.a, storeNames.b]; }
+function getSColors() { return { [storeNames.a]:'#38bdf8', [storeNames.b]:'#34d399' }; }
+
+function today() { return new Date().toISOString().slice(0,10); }
+document.getElementById('inp-date').value = today();
+
+function isoToTR(d) { const [y,m,day]=d.split('-'); return `${day}.${m}.${y}`; }
+
+// USER MANAGEMENT
+function selectUser(name) {
+  currentUser = name;
+  localStorage.setItem('etsy_current_user', name);
+  document.getElementById('welcome-overlay').classList.add('hidden');
+  updateUserChip();
+  // Form'da kişiyi otomatik seç
+  document.getElementById('inp-person').value = name;
+}
+
+function changeUser() {
+  currentUser = null;
+  localStorage.removeItem('etsy_current_user');
+  document.getElementById('welcome-overlay').classList.remove('hidden');
+}
+
+function updateUserChip() {
+  const dot = document.getElementById('chip-dot');
+  const nameEl = document.getElementById('chip-name');
+  if (currentUser) {
+    nameEl.textContent = currentUser;
+    dot.style.background = PCOLORS[currentUser] || '#888';
+  } else {
+    nameEl.textContent = '—';
+    dot.style.background = '#444';
+  }
+}
+
+// Sayfa açılışında kullanıcı kontrolü
+if (currentUser) {
+  document.getElementById('welcome-overlay').classList.add('hidden');
+  updateUserChip();
+} else {
+  // welcome ekranını göster
+}
+
+function showToast(msg, type='') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(type);
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',2500);
+}
+
+function showTab(name) {
+  ['giris','ozet','grafik','ayarlar'].forEach(n => document.getElementById('tab-'+n).classList.toggle('hidden', n!==name));
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['giris','ozet','grafik','ayarlar'][i]===name));
+  if (name==='grafik') renderCharts();
+  if (name==='ozet') renderSummary();
+  if (name==='ayarlar') renderSettingsForm();
+}
+
+function renderSettingsForm() {
+  document.getElementById('set-store-a').value = storeNames.a;
+  document.getElementById('set-store-b').value = storeNames.b;
+  updateStoreChangeInfo();
+}
+
+function refreshStoreSelect() {
+  const sel = document.getElementById('inp-store');
+  const cur = sel.value;
+  sel.innerHTML = `<option value="${storeNames.a}">${storeNames.a}</option><option value="${storeNames.b}">${storeNames.b}</option>`;
+  if (cur === storeNames.a || cur === storeNames.b) sel.value = cur;
+}
+
+async function saveStoreNames() {
+  const a = document.getElementById('set-store-a').value.trim();
+  const b = document.getElementById('set-store-b').value.trim();
+  if (!a || !b) { showToast('İsimler boş olamaz','error'); return; }
+  if (a === b) { showToast('İki mağaza aynı isimde olamaz','error'); return; }
+
+  const oldA = storeNames.a, oldB = storeNames.b;
+  entries = entries.map(e => ({
+    ...e,
+    store: e.store === oldA ? a : e.store === oldB ? b : e.store
+  }));
+
+  storeNames.a = a;
+  storeNames.b = b;
+  storeNames.lastChangedBy = currentUser || 'Bilinmiyor';
+  storeNames.lastChangedAt = new Date().toISOString();
+
+  try {
+    await writeBin(entries, storeNames);
+    refreshStoreSelect();
+    renderTable();
+    updateStoreChangeInfo();
+    showToast('✓ Mağaza isimleri kaydedildi','ok');
+  } catch {
+    showToast('Kayıt hatası!','error');
+  }
+}
+
+function updateStoreChangeInfo() {
+  const el = document.getElementById('store-change-info');
+  if (storeNames.lastChangedBy && storeNames.lastChangedAt) {
+    const d = new Date(storeNames.lastChangedAt);
+    const dateStr = d.toLocaleDateString('tr-TR') + ' ' + d.toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'});
+    el.innerHTML = `💡 İsimler kaydedildikten sonra tüm kullanıcılar güncellenen isimleri görecek. Eski kayıtlar da otomatik güncellenir.<br><br>🕐 Son değişiklik: <strong style="color:${PCOLORS[storeNames.lastChangedBy]||'#aaa'}">${storeNames.lastChangedBy}</strong> tarafından ${dateStr}'de yapıldı.`;
+  } else {
+    el.innerHTML = '💡 İsimler kaydedildikten sonra tüm kullanıcılar güncellenen isimleri görecek. Eski kayıtlar da otomatik güncellenir.';
+  }
+}
+
+function weekStart(ref) {
+  const d=new Date(ref); d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.toISOString().slice(0,10);
+}
+
+function animateCount(el, to) {
+  const from = parseInt(el.textContent) || 0;
+  if (from === to) return;
+  const dur = 400, start = performance.now();
+  const tick = (now) => {
+    const p = Math.min((now-start)/dur, 1);
+    const ease = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(from + (to-from)*ease);
+    if (p<1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+function updateStats() {
+  const td=today(), ws=weekStart(new Date()), ms=td.slice(0,7);
+  let t=0,w=0,m=0,a=0;
+  entries.forEach(e=>{ a+=e.qty; if(e.date===td)t+=e.qty; if(e.date>=ws)w+=e.qty; if(e.date.startsWith(ms))m+=e.qty; });
+  animateCount(document.getElementById('stat-today'), t);
+  animateCount(document.getElementById('stat-week'), w);
+  animateCount(document.getElementById('stat-month'), m);
+  animateCount(document.getElementById('stat-all'), a);
+}
+
+function renderTable() {
+  const SCOLORS = getSColors();
+  const tbody=document.getElementById('tbl-body');
+  const sorted=[...entries].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  if(!sorted.length){tbody.innerHTML='<tr><td colspan="5" class="empty">Henüz kayıt yok</td></tr>';return;}
+  tbody.innerHTML=sorted.map(e=>`
+    <tr>
+      <td>${isoToTR(e.date)}</td>
+      <td><span class="badge ${PBADGE[e.person]||'b-selim'}">${e.person}</span></td>
+      <td><span class="badge" style="background:${e.store===storeNames.b?'rgba(52,211,153,0.12)':'rgba(56,189,248,0.12)'};color:${e.store===storeNames.b?'#34d399':'#38bdf8'}">${e.store||storeNames.a}</span></td>
+      <td><span class="qty-badge">${e.qty}</span></td>
+      <td><button class="del-btn" onclick="deleteEntry(${e.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function barRows(items, colors) {
+  const max=Math.max(...items.map(i=>i.v),1);
+  return items.map(i=>`
+    <div class="p-row">
+      <div class="p-dot" style="background:${colors[i.k]||'#888'}"></div>
+      <span class="p-name">${i.k}</span>
+      <div class="p-bar-wrap"><div class="p-bar" style="width:${(i.v/max)*100}%;background:${colors[i.k]||'#888'}"></div></div>
+      <span class="p-qty">${i.v}</span>
+    </div>
+  `).join('');
+}
+
+function renderSummary() {
+  const SCOLORS = getSColors();
+  const stores = getStores();
+  const td=today(), ws=weekStart(new Date()), ms=td.slice(0,7);
+  const we=entries.filter(e=>e.date>=ws), mo=entries.filter(e=>e.date.startsWith(ms));
+  const pItems = list => PERSONS.map(p=>({k:p,v:list.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0)}));
+  const sItems = list => stores.map(s=>({k:s,v:list.filter(e=>(e.store||storeNames.a)===s).reduce((s,e)=>s+e.qty,0)}));
+  document.getElementById('sw-person').innerHTML=barRows(pItems(we),PCOLORS);
+  document.getElementById('sm-person').innerHTML=barRows(pItems(mo),PCOLORS);
+  document.getElementById('sw-store').innerHTML=barRows(sItems(we),SCOLORS);
+  document.getElementById('sm-store').innerHTML=barRows(sItems(mo),SCOLORS);
+}
+
+Chart.defaults.color = '#6b6b80';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+function renderCharts() {
+  const stores = getStores();
+  const now=new Date(), td=today(), ms=td.slice(0,7);
+
+  const days=[],dayVals=[];
+  for(let i=6;i>=0;i--){ const d=new Date(now); d.setDate(now.getDate()-i); const ds=d.toISOString().slice(0,10); days.push(isoToTR(ds).slice(0,5)); dayVals.push(entries.filter(e=>e.date===ds).reduce((s,e)=>s+e.qty,0)); }
+
+  const mo=entries.filter(e=>e.date.startsWith(ms));
+  const pVals=PERSONS.map(p=>mo.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0));
+  const sVals=stores.map(s=>mo.filter(e=>(e.store||storeNames.a)===s).reduce((s,e)=>s+e.qty,0));
+
+  const wks=[],wkVals=[];
+  for(let i=3;i>=0;i--){ const ws=new Date(now); ws.setDate(now.getDate()-((now.getDay()+6)%7)-i*7); const we=new Date(ws); we.setDate(ws.getDate()+6); const wss=ws.toISOString().slice(0,10),wes=we.toISOString().slice(0,10); wks.push(isoToTR(wss).slice(0,5)); wkVals.push(entries.filter(e=>e.date>=wss&&e.date<=wes).reduce((s,e)=>s+e.qty,0)); }
+
+  const gridColor='rgba(255,255,255,0.05)';
+  const baseScales = { x:{grid:{color:gridColor,drawBorder:false},ticks:{font:{size:11}}}, y:{grid:{color:gridColor,drawBorder:false},ticks:{font:{size:11},stepSize:1},beginAtZero:true} };
+
+  function mk(id,type,labels,data,colors,extraOpts={}) {
+    const ctx=document.getElementById(id).getContext('2d');
+    if(charts[id]) charts[id].destroy();
+    charts[id]=new Chart(ctx,{
+      type,
+      data:{ labels, datasets:[{ data, backgroundColor:colors, borderColor: Array.isArray(colors)?colors:colors, borderWidth:type==='line'?2.5:0, borderRadius:type==='bar'?6:0, fill:false, tension:0.4, pointRadius:4, pointBackgroundColor:colors, pointBorderColor:'transparent' }] },
+      options:{ responsive:true, maintainAspectRatio:false, animation:{duration:800,easing:'easeOutQuart'}, plugins:{legend:{display:false}}, scales: type==='doughnut'?undefined:baseScales, ...extraOpts }
+    });
+  }
+
+  mk('ch-daily','bar',days,dayVals,'#c8ff00');
+  mk('ch-person','bar',PERSONS,pVals,PERSONS.map(p=>PCOLORS[p]));
+  mk('ch-store','doughnut',stores,sVals,SCOLORS_FIXED,{
+    plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b6b80',font:{size:12},padding:16,usePointStyle:true}}}
+  });
+  mk('ch-weekly','line',wks,wkVals,'#a78bfa');
+}
+
+// JSONBin
+async function createBin(data, stores) {
+  const r=await fetch('https://api.jsonbin.io/v3/b',{method:'POST',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Name':BIN_NAME,'X-Bin-Private':'false'},body:JSON.stringify({entries:data, storeNames: stores||{a:'Mağaza A',b:'Mağaza B'}})});
+  const j=await r.json(); if(j.metadata?.id){BIN_ID=j.metadata.id;localStorage.setItem('etsy_bin_id',BIN_ID);}
+}
+async function readBin() {
+  if(!BIN_ID) return null;
+  const r=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY}});
+  const j=await r.json(); return j.record||null;
+}
+async function writeBin(data, stores) {
+  const body = { entries: data, storeNames: stores || storeNames };
+  if(!BIN_ID){await createBin(data, body.storeNames);return;}
+  await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(body)});
+}
+
+async function loadData() {
+  document.getElementById('status-line').textContent='Güncelleniyor…';
+  try {
+    if(!BIN_ID){await createBin([],storeNames);entries=[];}
+    else{
+      const rec=await readBin();
+      entries=(rec?.entries)||[];
+      if(rec?.storeNames){ storeNames=rec.storeNames; }
+    }
+    refreshStoreSelect();
+    renderTable(); updateStats();
+    if (currentUser) document.getElementById('inp-person').value = currentUser;
+    document.getElementById('status-line').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR');
+    document.getElementById('live-status').style.opacity='1';
+  } catch {
+    document.getElementById('status-line').textContent='Bağlantı hatası';
+    document.getElementById('live-status').style.opacity='0.4';
+    showToast('Veriler yüklenemedi','error');
+  }
+}
+
+async function addEntry() {
+  const date=document.getElementById('inp-date').value;
+  const person=document.getElementById('inp-person').value;
+  const store=document.getElementById('inp-store').value;
+  const qty=parseInt(document.getElementById('inp-qty').value,10);
+  if(!date||!person||!qty||qty<1){showToast('Lütfen tüm alanları doldurun','error');return;}
+  const entry={id:Date.now(),date,person,store,qty};
+  entries.push(entry); renderTable(); updateStats();
+  try {
+    await writeBin(entries);
+    showToast('✓ Satış eklendi','ok');
+    document.getElementById('inp-qty').value=1;
+    document.getElementById('status-line').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR');
+  } catch {
+    entries=entries.filter(e=>e.id!==entry.id);
+    renderTable(); updateStats(); showToast('Kayıt hatası!','error');
+  }
+}
+
+async function deleteEntry(id) {
+  const prev=[...entries]; entries=entries.filter(e=>e.id!==id); renderTable(); updateStats();
+  try { await writeBin(entries); showToast('Kayıt silindi'); }
+  catch { entries=prev; renderTable(); updateStats(); showToast('Silme hatası!','error'); }
+}
+
+loadData();
+setInterval(loadData, 60000);
+
+
+</script>
+</body>
+</html>
