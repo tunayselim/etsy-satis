@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etsy Satış Takibi</title>
+<link href="https://fonts.googleapis.com/css2?family=Graphik:wght@400;500;600&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --etsy-orange: #F1641E;
+  --etsy-orange-d: #D4521A;
+  --etsy-orange-l: #FDF0EA;
+  --etsy-bej: #FAF7F2;
+  --etsy-bej2: #F4EDE4;
+  --etsy-brown: #333333;
+  --etsy-gray: #757575;
+  --etsy-lgray: #D9D9D9;
+  --etsy-border: #E6E6E6;
+  --etsy-white: #FFFFFF;
+  --etsy-green: #2E7D32;
+  --etsy-red: #C62828;
+  --s1:#3b82f6;--s2:#16a34a;--s3:#d97706;--s4:#db2777;--s5:#7c3aed;
+  --m1:#F1641E;--m2:#4A90D9;--m3:#27AE60;
+  --accent: #F1641E;
+}
+body.dark {
+  --etsy-bej: #0f0f0f;
+  --etsy-bej2: #1a1a1a;
+  --etsy-brown: #f0f0f0;
+  --etsy-gray: #999;
+  --etsy-border: #2a2a2a;
+  --etsy-white: #1e1e1e;
+  --etsy-orange-l: #2a1500;
+}
+body.theme-blue { --etsy-orange:#2563eb; --etsy-orange-d:#1d4ed8; --etsy-orange-l:#eff6ff; --accent:#2563eb; }
+body.theme-green { --etsy-orange:#16a34a; --etsy-orange-d:#15803d; --etsy-orange-l:#f0fdf4; --accent:#16a34a; }
+body.theme-purple { --etsy-orange:#7c3aed; --etsy-orange-d:#6d28d9; --etsy-orange-l:#f5f3ff; --accent:#7c3aed; }
+body.dark .field input, body.dark .field select,
+body.dark .filter-select, body.dark .s-input, body.dark .s-select,
+body.dark .mf select, body.dark .mf input,
+body.dark .lf select, body.dark .lf input {
+  background:#2a2a2a;
+  border-color:#3a3a3a;
+  color:#f0f0f0;
+}
+body.dark .field select option,
+body.dark .filter-select option,
+body.dark .s-select option,
+body.dark .mf select option,
+body.dark .lf select option { background:#2a2a2a; color:#f0f0f0; }
+body.dark table { color:#f0f0f0; }
+body.dark th { background:#1a1a1a; color:#999; }
+body.dark .summary-box, body.dark .leader-box,
+body.dark .badge-showcase, body.dark .chart-box,
+body.dark .settings-box, body.dark .admin-box,
+body.dark .star-box, body.dark .box, body.dark .table-box,
+body.dark .leader-row:hover { background:#1e1e1e; }
+body.dark .card { background:#1e1e1e; }
+body.dark .tabs { background:#1e1e1e; }
+body.dark .tab:not(.active) { color:#999; }
+body.dark .tab:hover:not(.active) { background:#2a2a2a; color:#f0f0f0; }
+body.dark .user-card { background:#2a2a2a; }
+body.dark .react-btn { background:#2a2a2a; border-color:#3a3a3a; color:#f0f0f0; }
+body.dark .react-btn.reacted { background:#2a1500; }
+body.dark .badge-card { background:#2a2a2a; }
+body.dark .badge-card.earned { background:#2a1500; border-color:var(--etsy-orange); }
+body.dark .refresh-btn { background:#2a2a2a; color:#999; border-color:#3a3a3a; }
+body.dark .refresh-btn:hover { color:var(--etsy-orange); border-color:var(--etsy-orange); }
+body.dark .reaction-bar { background:#1a1a1a; }
+body.dark .filters { background:#1a1a1a; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito Sans',sans-serif;background:var(--etsy-bej);color:var(--etsy-brown);min-height:100vh;}
+
+/* ── OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.hidden{display:none;}
+.modal{background:var(--etsy-white);border-radius:12px;padding:2.25rem 2rem;max-width:400px;width:92%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.18);}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;color:var(--etsy-gray);cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s;}
+.modal-close:hover{background:var(--etsy-bej2);}
+.modal-logo{text-align:center;margin-bottom:1.25rem;}
+.modal-logo svg{width:80px;}
+.modal-title{font-size:1.4rem;font-weight:800;color:var(--etsy-brown);text-align:center;margin-bottom:4px;}
+.modal-sub{font-size:13px;color:var(--etsy-gray);text-align:center;margin-bottom:1.5rem;}
+.mf{margin-bottom:14px;}
+.mf label{font-size:12px;font-weight:700;color:var(--etsy-brown);display:block;margin-bottom:5px;}
+.mf select,.mf input{width:100%;height:44px;background:var(--etsy-white);border:2px solid var(--etsy-border);border-radius:8px;padding:0 14px;font-size:14px;font-family:'Nunito Sans',sans-serif;color:var(--etsy-brown);outline:none;transition:border-color 0.2s;}
+.mf select:focus,.mf input:focus{border-color:var(--etsy-orange);}
+.mf select option{background:#fff;}
+.remember-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.remember-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--etsy-orange);cursor:pointer;}
+.remember-row label{font-size:13px;color:var(--etsy-gray);cursor:pointer;}
+.modal-err{font-size:12px;color:var(--etsy-red);min-height:18px;margin-bottom:10px;text-align:center;font-weight:600;}
+.btn-orange{width:100%;height:46px;background:var(--etsy-orange);color:#fff;border:none;border-radius:24px;font-family:'Nunito Sans',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;margin-bottom:10px;}
+.btn-orange:hover{background:var(--etsy-orange-d);transform:translateY(-1px);box-shadow:0 4px 16px rgba(241,100,30,0.3);}
+.btn-link{background:none;border:none;color:var(--etsy-orange);font-size:13px;cursor:pointer;font-weight:600;display:block;margin:0 auto;transition:color 0.2s;}
+.btn-link:hover{color:var(--etsy-orange-d);text-decoration:underline;}
+.modal-info{font-size:13px;color:var(--etsy-gray);text-align:center;margin-bottom:14px;line-height:1.6;}
+
+/* ── HEADER ── */
+.header{background:var(--etsy-white);border-bottom:1px solid var(--etsy-border);padding:0 1.5rem;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.header-inner{max-width:1040px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.header-brand{display:flex;align-items:center;gap:12px;}
+.header-brand svg{width:90px;}
+.header-divider{width:1px;height:28px;background:var(--etsy-border);}
+.header-title{font-size:14px;font-weight:700;color:var(--etsy-gray);}
+.header-right{display:flex;align-items:center;gap:10px;}
+.user-chip{display:flex;align-items:center;gap:7px;background:var(--etsy-bej);border:2px solid var(--etsy-border);border-radius:24px;padding:6px 14px 6px 10px;font-size:13px;font-weight:600;color:var(--etsy-brown);cursor:pointer;transition:all 0.2s;}
+.user-chip:hover{border-color:var(--etsy-orange);color:var(--etsy-orange);}
+.u-dot{width:8px;height:8px;border-radius:50%;}
+.live-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--etsy-gray);font-weight:600;}
+.live-pill::before{content:'';width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.2);animation:livepulse 2s ease infinite;}
+@keyframes livepulse{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,0.2)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0.08)}}
+
+/* ── MAIN ── */
+.wrap{max-width:1040px;margin:0 auto;padding:2rem 1.5rem 5rem;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:4px;margin-bottom:1.75rem;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+.tab{flex:1;padding:9px 8px;border-radius:9px;border:none;background:transparent;font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;color:var(--etsy-gray);cursor:pointer;transition:all 0.2s;text-align:center;letter-spacing:0.02em;}
+.tab.active{background:var(--etsy-orange);color:#fff;box-shadow:0 2px 8px rgba(241,100,30,0.3);}
+.tab:hover:not(.active){background:var(--etsy-bej2);color:var(--etsy-brown);}
+.tab-admin{background:var(--etsy-orange-l)!important;color:var(--etsy-orange)!important;}
+.tab-admin.active{background:var(--etsy-orange)!important;color:#fff!important;}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem;}
+.card{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.25rem;transition:box-shadow 0.2s,transform 0.2s;position:relative;overflow:hidden;}
+.card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.08);transform:translateY(-2px);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.card-label{font-size:11px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;}
+.card-icon{font-size:18px;opacity:0.6;}
+.card-value{font-size:2.2rem;font-weight:800;color:var(--etsy-brown);line-height:1;margin-bottom:6px;}
+.card-change{font-size:11px;font-weight:700;display:flex;align-items:center;gap:3px;}
+.card-change.up{color:var(--etsy-green);}
+.card-change.down{color:var(--etsy-red);}
+.card-change.neutral{color:var(--etsy-gray);}
+.card-bar{position:absolute;bottom:0;left:0;right:0;height:3px;}
+
+/* STARS */
+.stars-wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
+.star-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;text-align:center;position:relative;overflow:hidden;transition:box-shadow 0.2s;}
+.star-box:hover{box-shadow:0 6px 20px rgba(0,0,0,0.08);}
+.star-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--etsy-orange),#FFB347);}
+.star-period{font-size:11px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;}
+.star-crown{font-size:1.6rem;margin-bottom:0.5rem;animation:bounce 1.8s ease infinite;}
+.star-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 0.75rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;color:#fff;position:relative;}
+.star-avatar::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px dashed currentColor;opacity:0.3;animation:rotateStar 8s linear infinite;}
+.star-name{font-size:1.2rem;font-weight:800;color:var(--etsy-brown);margin-bottom:4px;}
+.star-score{font-size:13px;color:var(--etsy-gray);font-weight:600;}
+.star-empty{color:var(--etsy-gray);font-size:13px;padding:2rem 0;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes rotateStar{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* BOX */
+.box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.box-title{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 0.6fr auto;gap:10px;align-items:end;}
+.field label{font-size:11px;font-weight:700;color:var(--etsy-brown);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.06em;}
+.field input,.field select{width:100%;height:42px;background:var(--etsy-bej);border:2px solid var(--etsy-border);border-radius:8px;padding:0 12px;font-size:13px;font-family:'Nunito Sans',sans-serif;color:var(--etsy-brown);outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+.field input:focus,.field select:focus{border-color:var(--etsy-orange);background:#fff;}
+.field select option{background:#fff;}
+.btn-add{height:42px;padding:0 20px;background:var(--etsy-orange);color:#fff;border:none;border-radius:24px;font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.2s;box-shadow:0 2px 8px rgba(241,100,30,0.25);}
+.btn-add:hover{background:var(--etsy-orange-d);transform:translateY(-1px);}
+
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;}
+.filter-select{height:36px;background:var(--etsy-white);border:2px solid var(--etsy-border);border-radius:8px;padding:0 10px;font-size:13px;font-family:'Nunito Sans',sans-serif;color:var(--etsy-brown);outline:none;transition:border-color 0.2s;-webkit-appearance:none;cursor:pointer;}
+.filter-select:focus{border-color:var(--etsy-orange);}
+.filter-label{font-size:12px;font-weight:700;color:var(--etsy-gray);}
+.btn-clear{height:36px;padding:0 14px;background:none;border:2px solid var(--etsy-border);border-radius:8px;font-size:12px;font-family:'Nunito Sans',sans-serif;font-weight:700;color:var(--etsy-gray);cursor:pointer;transition:all 0.2s;}
+.btn-clear:hover{border-color:var(--etsy-orange);color:var(--etsy-orange);}
+
+/* TABLE */
+.table-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;overflow:hidden;margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.tbl-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--etsy-border);}
+.tbl-header span{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;}
+.refresh-btn{background:var(--etsy-bej);border:2px solid var(--etsy-border);border-radius:8px;padding:5px 12px;font-size:12px;font-family:'Nunito Sans',sans-serif;font-weight:700;color:var(--etsy-gray);cursor:pointer;transition:all 0.2s;}
+.refresh-btn:hover{border-color:var(--etsy-orange);color:var(--etsy-orange);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{font-size:11px;font-weight:700;color:var(--etsy-gray);text-align:left;padding:9px 1.25rem;background:var(--etsy-bej);text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--etsy-border);}
+td{padding:11px 1.25rem;border-bottom:1px solid var(--etsy-border);color:var(--etsy-brown);transition:background 0.15s;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--etsy-bej);}
+.empty{text-align:center;padding:3rem;color:var(--etsy-gray);font-size:13px;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+.bp-s{background:#dbeafe;color:#1d4ed8;}
+.bp-b{background:#dcfce7;color:#15803d;}
+.bp-u{background:#fef3c7;color:#b45309;}
+.bp-ui{background:#fce7f3;color:#be185d;}
+.bp-g{background:#ede9fe;color:#6d28d9;}
+.bs-store{background:var(--etsy-orange-l);color:var(--etsy-orange-d);}
+.bs-hidden{background:var(--etsy-bej2);color:var(--etsy-gray);font-style:italic;}
+.qty-num{font-size:15px;font-weight:800;color:var(--etsy-brown);}
+.time-small{font-size:11px;color:var(--etsy-gray);}
+.del-btn{background:none;border:none;cursor:pointer;color:var(--etsy-lgray);font-size:14px;padding:3px 7px;border-radius:6px;transition:all 0.15s;opacity:0;}
+tr:hover .del-btn{opacity:1;}
+.del-btn:hover{color:var(--etsy-red);background:rgba(198,40,40,0.08);}
+
+/* CHARTS */
+.chart-tabs{display:flex;gap:6px;margin-bottom:1.25rem;}
+.ctab{padding:5px 14px;border-radius:99px;border:2px solid var(--etsy-border);background:none;font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;color:var(--etsy-gray);cursor:pointer;transition:all 0.2s;}
+.ctab.active{background:var(--etsy-orange);border-color:var(--etsy-orange);color:#fff;}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
+.chart-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.chart-box h3{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem;}
+.chart-wrap{position:relative;height:185px;width:100%;}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.summary-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;}
+.summary-box h3{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.p-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--etsy-border);}
+.p-row:last-child{border-bottom:none;}
+.p-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.p-name{font-size:13px;font-weight:600;min-width:65px;}
+.p-bar-wrap{flex:1;height:6px;background:var(--etsy-bej2);border-radius:3px;}
+.p-bar{height:6px;border-radius:3px;transition:width 0.6s cubic-bezier(0.16,1,0.3,1);}
+.p-qty{font-size:15px;font-weight:800;min-width:28px;text-align:right;color:var(--etsy-brown);}
+
+/* SETTINGS */
+.settings-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem;}
+.settings-box h2{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.s-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.s-row label{font-size:12px;font-weight:700;color:var(--etsy-brown);min-width:120px;}
+.s-input,.s-select{flex:1;height:40px;background:var(--etsy-bej);border:2px solid var(--etsy-border);border-radius:8px;padding:0 12px;font-size:13px;font-family:'Nunito Sans',sans-serif;color:var(--etsy-brown);outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
+.s-input:focus,.s-select:focus{border-color:var(--etsy-orange);background:#fff;}
+.s-select option{background:#fff;}
+.btn-save{margin-top:8px;height:40px;padding:0 22px;background:var(--etsy-orange);color:#fff;border:none;border-radius:24px;font-family:'Nunito Sans',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.2s;box-shadow:0 2px 8px rgba(241,100,30,0.2);}
+.btn-save:hover{background:var(--etsy-orange-d);}
+.s-hint{font-size:12px;color:var(--etsy-gray);margin-top:1rem;line-height:1.7;}
+
+/* ADMIN */
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.5rem;}
+.admin-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;}
+.admin-box h3{font-size:12px;font-weight:700;color:var(--etsy-orange);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.admin-box.full{grid-column:span 2;}
+.user-card{background:var(--etsy-bej);border:1px solid var(--etsy-border);border-radius:8px;padding:1rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.uc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.uc-name{font-size:14px;font-weight:700;flex:1;}
+.uc-status{font-size:11px;color:var(--etsy-gray);font-weight:600;}
+.btn-reset{background:var(--etsy-orange-l);border:2px solid var(--etsy-orange);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--etsy-orange);cursor:pointer;transition:all 0.2s;font-family:'Nunito Sans',sans-serif;}
+.btn-reset:hover{background:var(--etsy-orange);color:#fff;}
+.report-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--etsy-border);font-size:13px;font-weight:600;}
+.report-row:last-child{border-bottom:none;}
+.report-val{font-size:18px;font-weight:800;color:var(--etsy-brown);}
+
+.status{font-size:11px;color:var(--etsy-gray);text-align:right;margin-top:0.75rem;font-weight:600;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--etsy-brown);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:700;opacity:0;transition:all 0.25s cubic-bezier(0.16,1,0.3,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--etsy-green);}
+.toast.error{background:var(--etsy-red);}
+
+/* DARK MODE TOGGLE */
+.dm-btn{background:var(--etsy-bej2);border:2px solid var(--etsy-border);border-radius:24px;padding:5px 12px;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:'Nunito Sans',sans-serif;color:var(--etsy-brown);}
+.dm-btn:hover{border-color:var(--etsy-orange);}
+
+/* THEME PICKER */
+.theme-picker{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:1rem;}
+.theme-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.2s;}
+.theme-dot.active{border-color:var(--etsy-brown);transform:scale(1.15);}
+.theme-dot:hover{transform:scale(1.1);}
+
+/* LEADERBOARD */
+.leader-box{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.leader-box h3{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.leader-row{display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;margin-bottom:6px;transition:background 0.15s;}
+.leader-row:last-child{margin-bottom:0;}
+.leader-row:hover{background:var(--etsy-bej);}
+.leader-rank{font-size:1.4rem;min-width:32px;text-align:center;}
+.leader-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;color:#fff;flex-shrink:0;}
+.leader-info{flex:1;}
+.leader-name{font-size:14px;font-weight:700;color:var(--etsy-brown);}
+.leader-badges{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap;}
+.badge-pill{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:700;}
+.leader-bar-wrap{flex:1;height:8px;background:var(--etsy-bej2);border-radius:4px;}
+.leader-bar{height:8px;border-radius:4px;transition:width 0.7s cubic-bezier(0.16,1,0.3,1);}
+.leader-score{font-size:16px;font-weight:800;color:var(--etsy-brown);min-width:36px;text-align:right;}
+
+/* REACTIONS */
+.reaction-bar{display:flex;gap:6px;align-items:center;padding:6px 1.25rem;border-bottom:1px solid var(--etsy-border);background:var(--etsy-bej);flex-wrap:wrap;}
+.reaction-label{font-size:11px;color:var(--etsy-gray);font-weight:600;}
+.react-btn{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:99px;padding:4px 10px;font-size:13px;cursor:pointer;transition:all 0.2s;font-family:'Nunito Sans',sans-serif;display:flex;align-items:center;gap:4px;}
+.react-btn:hover{border-color:var(--etsy-orange);transform:scale(1.05);}
+.react-btn.reacted{background:var(--etsy-orange-l);border-color:var(--etsy-orange);}
+.react-count{font-size:11px;font-weight:700;color:var(--etsy-gray);}
+
+/* BADGE SHOWCASE */
+.badge-showcase{background:var(--etsy-white);border:1px solid var(--etsy-border);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.badge-showcase h3{font-size:12px;font-weight:700;color:var(--etsy-gray);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem;}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+.badge-card{background:var(--etsy-bej);border:2px solid var(--etsy-border);border-radius:10px;padding:1rem;text-align:center;transition:all 0.2s;}
+.badge-card.earned{border-color:var(--etsy-orange);background:var(--etsy-orange-l);}
+.badge-card.locked{opacity:0.4;filter:grayscale(1);}
+.badge-icon{font-size:2rem;margin-bottom:6px;}
+.badge-name{font-size:12px;font-weight:700;color:var(--etsy-brown);}
+.badge-desc{font-size:11px;color:var(--etsy-gray);margin-top:2px;}
+
+.hidden{display:none!important;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100px) rotate(720deg);opacity:0}}
+@media(max-width:640px){
+  .cards{grid-template-columns:1fr 1fr;}
+  .form-row{grid-template-columns:1fr 1fr;}
+  .btn-add{grid-column:span 2;justify-content:center;}
+  .chart-grid,.summary-grid,.admin-grid,.stars-wrap{grid-template-columns:1fr;}
+  .admin-box.full{grid-column:span 1;}
+  .header-inner{flex-wrap:wrap;height:auto;padding:10px 0;gap:8px;}
+  #tab-ekip > div:first-child{grid-template-columns:1fr!important;}
+  #tab-ozet .summary-grid{grid-template-columns:1fr!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="overlay" id="ov-login">
+  <div class="modal">
+    <button class="modal-close" onclick="/* no close on login */">✕</button>
+    <div class="modal-logo">
+      <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+        <text x="10" y="45" font-family="Nunito Sans,sans-serif" font-size="42" font-weight="800" fill="#F1641E">etsy</text>
+      </svg>
+    </div>
+    <div class="modal-title">Hoş Geldiniz</div>
+    <div class="modal-sub">Satış takip sistemine giriş yapın</div>
+    <div class="mf"><label>Kullanıcı</label>
+      <select id="lg-person">
+        <option value="">Seçiniz…</option>
+        <option>Selim</option><option>Burak</option><option>Umut</option><option>Ümit</option><option>Gökhan</option>
+      </select>
+    </div>
+    <div class="mf"><label>Şifre</label><input type="password" id="lg-pass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <div class="remember-row">
+      <input type="checkbox" id="lg-remember"/>
+      <label for="lg-remember">Beni hatırla</label>
+    </div>
+    <div class="modal-err" id="lg-err"></div>
+    <button class="btn-orange" onclick="doLogin()">Giriş Yap</button>
+    <button class="btn-link" onclick="showForgot()">Şifremi unuttum</button>
+  </div>
+</div>
+
+<!-- İLK KURULUM -->
+<div class="overlay hidden" id="ov-setup">
+  <div class="modal">
+    <div class="modal-title">İlk Kurulum</div>
+    <div class="modal-sub">Merhaba <strong id="setup-name" style="color:var(--etsy-orange)"></strong>! Hesabını oluştur.</div>
+    <div class="mf"><label>Yeni Şifre</label><input type="password" id="setup-pass" placeholder="En az 3 karakter"/></div>
+    <div class="mf"><label>Güvenlik Sorusu</label>
+      <select id="setup-q">
+        <option value="">Soru seçiniz…</option>
+        <option>İlk evcil hayvanınızın adı nedir?</option>
+        <option>Annenizin kızlık soyadı nedir?</option>
+        <option>İlk gittiğiniz konser nedir?</option>
+        <option>Çocukluğunuzun geçtiği şehir neydi?</option>
+        <option>En sevdiğiniz öğretmenin adı nedir?</option>
+        <option>İlk arabanızın markası nedir?</option>
+      </select>
+    </div>
+    <div class="mf"><label>Cevap</label><input type="text" id="setup-a" placeholder="Cevabınız…"/></div>
+    <div class="modal-err" id="setup-err"></div>
+    <button class="btn-orange" onclick="doSetup()">Kaydet & Giriş Yap</button>
+  </div>
+</div>
+
+<!-- ŞİFREMİ UNUTTUM -->
+<div class="overlay hidden" id="ov-forgot">
+  <div class="modal">
+    <button class="modal-close" onclick="showLogin()">✕</button>
+    <div class="modal-title">Şifre Sıfırla</div>
+    <div class="modal-sub">Güvenlik sorunuzu cevaplayın</div>
+    <div class="mf"><label>Kullanıcı</label>
+      <select id="fg-person" onchange="showForgotQ()">
+        <option value="">Seçiniz…</option>
+        <option>Selim</option><option>Burak</option><option>Umut</option><option>Ümit</option><option>Gökhan</option>
+      </select>
+    </div>
+    <div id="fg-qwrap" class="hidden">
+      <div class="modal-info" id="fg-qtxt"></div>
+      <div class="mf"><label>Cevap</label><input type="text" id="fg-ans" placeholder="Cevabınız…"/></div>
+      <div class="mf"><label>Yeni Şifre</label><input type="password" id="fg-np" placeholder="••••••"/></div>
+    </div>
+    <div class="modal-err" id="fg-err"></div>
+    <button class="btn-orange" onclick="doForgot()">Devam Et</button>
+    <button class="btn-link" onclick="showLogin()">← Geri Dön</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+        <text x="10" y="45" font-family="Nunito Sans,sans-serif" font-size="42" font-weight="800" fill="#F1641E">etsy</text>
+      </svg>
+      <div class="header-divider"></div>
+      <div class="header-title">Satış Takibi</div>
+    </div>
+    <div class="header-right">
+      <button class="dm-btn" id="dm-btn" onclick="toggleDark()">🌙</button>
+      <button class="user-chip" id="user-chip" onclick="changeUser()">
+        <div class="u-dot" id="chip-dot"></div>
+        <span id="chip-name">—</span>
+        <span style="opacity:0.4;margin-left:2px;font-size:11px">↺</span>
+      </button>
+      <div class="live-pill" id="live-status">Canlı</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="tabs" id="main-tabs">
+    <button class="tab active" onclick="showTab('giris')">🛍 Satış</button>
+    <button class="tab" onclick="showTab('ekip')">🏆 Ekip</button>
+    <button class="tab" onclick="showTab('ozet')">📊 Özet</button>
+    <button class="tab" onclick="showTab('grafik')">📈 Grafikler</button>
+    <button class="tab" onclick="showTab('ayarlar')">⚙️ Ayarlar</button>
+    <button class="tab tab-admin hidden" id="tab-admin-btn" onclick="showTab('admin')">🔑 Admin</button>
+  </div>
+
+  <!-- GİRİŞ -->
+  <div id="tab-giris">
+    <div class="cards" id="stat-cards">
+      <div class="card">
+        <div class="card-top"><div class="card-label">Bugün</div><div class="card-icon">☀️</div></div>
+        <div class="card-value" id="st-today">0</div>
+        <div class="card-change neutral" id="ch-today">—</div>
+        <div class="card-bar" style="background:linear-gradient(90deg,var(--etsy-orange),#FFB347)"></div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-label">Bu Hafta</div><div class="card-icon">📅</div></div>
+        <div class="card-value" id="st-week">0</div>
+        <div class="card-change neutral" id="ch-week">—</div>
+        <div class="card-bar" style="background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-label">Bu Ay</div><div class="card-icon">🗓️</div></div>
+        <div class="card-value" id="st-month">0</div>
+        <div class="card-change neutral" id="ch-month">—</div>
+        <div class="card-bar" style="background:linear-gradient(90deg,#16a34a,#4ade80)"></div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-label">Toplam</div><div class="card-icon">🛍️</div></div>
+        <div class="card-value" id="st-all">0</div>
+        <div class="card-change neutral" id="ch-all">—</div>
+        <div class="card-bar" style="background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div>
+      </div>
+    </div>
+
+    <div class="stars-wrap">
+      <div class="star-box">
+        <div class="star-period">⭐ Haftanın Yıldızı</div>
+        <div id="star-week-content"><div class="star-empty">Henüz veri yok</div></div>
+      </div>
+      <div class="star-box">
+        <div class="star-period">🏆 Ayın Yıldızı</div>
+        <div id="star-month-content"><div class="star-empty">Henüz veri yok</div></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">Yeni Satış Ekle</div>
+      <div class="form-row">
+        <div class="field"><label>Tarih</label><input type="date" id="inp-date"/></div>
+        <div class="field"><label>Kişi</label>
+          <select id="inp-person">
+            <option value="">Seçiniz…</option>
+            <option>Selim</option><option>Burak</option><option>Umut</option><option>Ümit</option><option>Gökhan</option>
+          </select>
+        </div>
+        <div class="field"><label>Mağaza</label><select id="inp-store"></select></div>
+        <div class="field"><label>Adet</label><input type="number" id="inp-qty" min="1" value="1"/></div>
+        <button class="btn-add" onclick="addEntry()">+ Ekle</button>
+      </div>
+    </div>
+
+    <div class="table-box">
+      <div class="tbl-header">
+        <span>Satış Geçmişi</span>
+        <button class="refresh-btn" onclick="loadData()">↻ Yenile</button>
+      </div>
+      <div style="padding:0.75rem 1.25rem;border-bottom:1px solid var(--etsy-border);background:var(--etsy-bej);">
+        <div class="filters">
+          <span class="filter-label">Filtrele:</span>
+          <select class="filter-select" id="f-person" onchange="renderTable()">
+            <option value="">Tüm kişiler</option>
+            <option>Selim</option><option>Burak</option><option>Umut</option><option>Ümit</option><option>Gökhan</option>
+          </select>
+          <select class="filter-select" id="f-period" onchange="renderTable()">
+            <option value="">Tüm zamanlar</option>
+            <option value="today">Bugün</option>
+            <option value="week">Bu hafta</option>
+            <option value="month">Bu ay (30 gün)</option>
+          </select>
+          <button class="btn-clear" onclick="clearFilters()">✕ Temizle</button>
+        </div>
+        <div class="reaction-bar">
+          <span class="reaction-label">Tepki:</span>
+          <button class="react-btn" id="r-fire" onclick="toggleReact('🔥')">🔥 <span class="react-count" id="rc-fire">0</span></button>
+          <button class="react-btn" id="r-clap" onclick="toggleReact('👏')">👏 <span class="react-count" id="rc-clap">0</span></button>
+          <button class="react-btn" id="r-rocket" onclick="toggleReact('🚀')">🚀 <span class="react-count" id="rc-rocket">0</span></button>
+          <button class="react-btn" id="r-heart" onclick="toggleReact('❤️')">❤️ <span class="react-count" id="rc-heart">0</span></button>
+          <button class="react-btn" id="r-100" onclick="toggleReact('💯')">💯 <span class="react-count" id="rc-100">0</span></button>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>Tarih</th><th>Eklenme Saati</th><th>Kişi</th><th>Mağaza</th><th>Adet</th><th></th></tr></thead>
+        <tbody id="tbl-body"><tr><td colspan="6" class="empty">Yükleniyor…</td></tr></tbody>
+      </table>
+    </div>
+    <div class="status" id="status-line"></div>
+  </div>
+
+  <!-- EKİP -->
+  <div id="tab-ekip" class="hidden">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:1.5rem;">
+      <div class="leader-box" style="margin-bottom:0">
+        <h3>☀️ Günlük</h3>
+        <div id="leaderboard-daily"></div>
+      </div>
+      <div class="leader-box" style="margin-bottom:0">
+        <h3>📅 Haftalık</h3>
+        <div id="leaderboard-weekly"></div>
+      </div>
+      <div class="leader-box" style="margin-bottom:0">
+        <h3>🗓️ Aylık (30 Gün)</h3>
+        <div id="leaderboard-monthly"></div>
+      </div>
+    </div>
+    <div class="badge-showcase">
+      <h3>🎖️ Rozetler — <span id="badge-user-name"></span></h3>
+      <div class="badge-grid" id="badge-grid"></div>
+    </div>
+  </div>
+
+  <!-- ÖZET -->
+  <div id="tab-ozet" class="hidden">
+    <div class="summary-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:1.5rem;">
+      <div class="summary-box"><h3>Bugün — Kişi Bazlı <span style="font-weight:400;opacity:0.6">(vs dün)</span></h3><div id="sd-person"></div></div>
+      <div class="summary-box"><h3>Bu Hafta — Kişi Bazlı <span style="font-weight:400;opacity:0.6">(vs geçen hafta)</span></h3><div id="sw-person"></div></div>
+      <div class="summary-box"><h3>Son 30 Gün — Kişi Bazlı <span style="font-weight:400;opacity:0.6">(vs önceki 30 gün)</span></h3><div id="sm-person"></div></div>
+    </div>
+    <div class="summary-grid" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="summary-box"><h3>Bugün — Mağaza <span style="font-weight:400;opacity:0.6">(vs dün)</span></h3><div id="sd-store"></div></div>
+      <div class="summary-box"><h3>Bu Hafta — Mağaza <span style="font-weight:400;opacity:0.6">(vs geçen hafta)</span></h3><div id="sw-store"></div></div>
+      <div class="summary-box"><h3>Son 30 Gün — Mağaza <span style="font-weight:400;opacity:0.6">(vs önceki 30 gün)</span></h3><div id="sm-store"></div></div>
+    </div>
+  </div>
+
+  <!-- GRAFİK -->
+  <div id="tab-grafik" class="hidden">
+    <div class="box" style="margin-bottom:1.5rem;">
+      <div class="box-title">Grafik Dönemi</div>
+      <div class="chart-tabs">
+        <button class="ctab active" onclick="setChartPeriod('daily',this)">Günlük</button>
+        <button class="ctab" onclick="setChartPeriod('weekly',this)">Haftalık</button>
+        <button class="ctab" onclick="setChartPeriod('monthly',this)">Aylık</button>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-box"><h3 id="ch-title-1">Son 7 Gün — Toplam</h3><div class="chart-wrap" id="ch-main"></div></div>
+      <div class="chart-box"><h3 id="ch-title-2">Kişi Bazlı Karşılaştırma</h3><div class="chart-wrap" id="ch-person"></div></div>
+      <div class="chart-box"><h3 id="ch-title-3">Mağaza Karşılaştırması</h3><div class="chart-wrap" id="ch-store"></div></div>
+      <div class="chart-box"><h3>Haftalık Kişi Bazlı</h3><div class="chart-wrap" id="ch-weekly-person"></div></div>
+    </div>
+  </div>
+
+  <!-- AYARLAR -->
+  <div id="tab-ayarlar" class="hidden">
+    <div class="settings-box">
+      <h2>🎨 Tema Rengi</h2>
+      <div class="theme-picker">
+        <div class="theme-dot active" style="background:#F1641E" onclick="setTheme('','#F1641E',this)" title="Etsy Turuncu"></div>
+        <div class="theme-dot" style="background:#2563eb" onclick="setTheme('theme-blue','#2563eb',this)" title="Mavi"></div>
+        <div class="theme-dot" style="background:#16a34a" onclick="setTheme('theme-green','#16a34a',this)" title="Yeşil"></div>
+        <div class="theme-dot" style="background:#7c3aed" onclick="setTheme('theme-purple','#7c3aed',this)" title="Mor"></div>
+        <div class="theme-dot" style="background:#db2777" onclick="setTheme('theme-pink','#db2777',this)" title="Pembe"></div>
+      </div>
+    </div>
+    <div class="settings-box">
+      <h2>🏪 Mağaza İsimlerim</h2>
+      <div id="my-stores-wrap"></div>
+      <button class="btn-save" onclick="saveMyStores()">Kaydet</button>
+      <p class="s-hint">💡 Sadece kendi mağaza isimlerinizi görürsünüz. Başkasının mağazaları "Gizli" görünür.</p>
+    </div>
+    <div class="settings-box">
+      <h2>🔑 Şifre Değiştir</h2>
+      <div class="s-row"><label>Mevcut Şifre</label><input class="s-input" id="set-old" type="password" placeholder="••••••"/></div>
+      <div class="s-row"><label>Yeni Şifre</label><input class="s-input" id="set-new" type="password" placeholder="••••••"/></div>
+      <div class="s-row"><label>Tekrar</label><input class="s-input" id="set-new2" type="password" placeholder="••••••"/></div>
+      <button class="btn-save" onclick="changePass()">Güncelle</button>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div id="tab-admin" class="hidden">
+    <div class="admin-grid">
+      <div class="admin-box">
+        <h3>👥 Kullanıcılar</h3>
+        <div id="admin-users"></div>
+      </div>
+      <div class="admin-box">
+        <h3>📊 Genel Rapor</h3>
+        <div id="admin-report"></div>
+      </div>
+      <div class="admin-box full">
+        <h3>📋 Tüm Satışlar</h3>
+        <table>
+          <thead><tr><th>Tarih</th><th>Eklenme</th><th>Kişi</th><th>Mağaza</th><th>Adet</th><th></th></tr></thead>
+          <tbody id="admin-tbl"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASS='fenerbahce';
+
+let entries=[], userProfiles={};
+let currentUser=null, isAdmin=false;
+let chartPeriod='daily';
+
+const PERSONS=['Selim','Burak','Umut','Ümit','Gökhan'];
+const PCOLORS={Selim:'#3b82f6',Burak:'#16a34a',Umut:'#d97706','Ümit':'#db2777',Gökhan:'#7c3aed'};
+const PBADGE={Selim:'bp-s',Burak:'bp-b',Umut:'bp-u','Ümit':'bp-ui',Gökhan:'bp-g'};
+const MCOLS=['#F1641E','#4A90D9','#27AE60'];
+
+function today(){return new Date().toISOString().slice(0,10);}
+function daysAgo(n){const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);}
+function tr(d){const[y,m,day]=d.split('-');return `${day}.${m}.${y}`;}
+function weekStart(){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return d.toISOString().slice(0,10);}
+
+document.getElementById('inp-date').value=today();
+
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+type;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',2500);
+}
+function show(id){document.getElementById(id).classList.remove('hidden');}
+function hide(id){document.getElementById(id).classList.add('hidden');}
+function showLogin(){hide('ov-setup');hide('ov-forgot');show('ov-login');}
+function showForgot(){hide('ov-login');show('ov-forgot');hide('fg-qwrap');document.getElementById('fg-err').textContent='';}
+function showForgotQ(){
+  const p=document.getElementById('fg-person').value;
+  const prof=userProfiles[p];
+  hide('fg-qwrap');
+  if(p&&prof&&prof.setup){
+    document.getElementById('fg-qtxt').textContent='❓ '+prof.q;
+    show('fg-qwrap');
+  }
+}
+
+// ── AUTH ──
+function doLogin(){
+  const p=document.getElementById('lg-person').value;
+  const s=document.getElementById('lg-pass').value;
+  const rem=document.getElementById('lg-remember').checked;
+  const e=document.getElementById('lg-err');
+  if(!p){e.textContent='Kullanıcı seçiniz';return;}
+  if(s===ADMIN_PASS){
+    currentUser='Admin';isAdmin=true;
+    sessionStorage.setItem('etsy_user','Admin');
+    sessionStorage.setItem('etsy_admin','1');
+    if(rem)localStorage.setItem('etsy_remember','Admin|admin');
+    hide('ov-login');updateChip();show('tab-admin-btn');showTab('admin');return;
+  }
+  const prof=userProfiles[p];
+  if(!prof||!prof.setup){
+    hide('ov-login');
+    document.getElementById('setup-name').textContent=p;
+    show('ov-setup');
+    sessionStorage.setItem('etsy_pending',p);
+    return;
+  }
+  if(prof.pass!==s){e.textContent='Şifre hatalı';document.getElementById('lg-pass').value='';return;}
+  e.textContent='';
+  if(rem)localStorage.setItem('etsy_remember',p+'|'+s);
+  loginAs(p);
+}
+function loginAs(p){
+  currentUser=p;isAdmin=false;
+  sessionStorage.setItem('etsy_user',p);
+  sessionStorage.removeItem('etsy_admin');
+  hide('ov-login');hide('ov-setup');hide('ov-forgot');
+  hide('tab-admin-btn');
+  updateChip();
+  document.getElementById('inp-person').value=p;
+  refreshStoreSelect();renderMyStoresSettings();
+}
+function doSetup(){
+  const p=sessionStorage.getItem('etsy_pending');
+  const pass=document.getElementById('setup-pass').value.trim();
+  const q=document.getElementById('setup-q').value;
+  const a=document.getElementById('setup-a').value.trim().toLowerCase();
+  const e=document.getElementById('setup-err');
+  if(!pass||pass.length<3){e.textContent='Şifre en az 3 karakter olmalı';return;}
+  if(!q){e.textContent='Güvenlik sorusu seçiniz';return;}
+  if(!a){e.textContent='Cevap giriniz';return;}
+  userProfiles[p]={pass,q,a,stores:{a:'Mağaza A',b:'Mağaza B',c:'Mağaza C'},setup:true};
+  writeBin().then(()=>{loginAs(p);toast('✓ Hesap oluşturuldu','ok');}).catch(err=>{e.textContent='Kayıt hatası: '+err.message;});
+}
+function doForgot(){
+  const p=document.getElementById('fg-person').value;
+  const e=document.getElementById('fg-err');
+  const wrap=document.getElementById('fg-qwrap');
+  if(!p){e.textContent='Kullanıcı seçiniz';return;}
+  const prof=userProfiles[p];
+  if(!prof||!prof.setup){e.textContent='Bu kullanıcı henüz kurulum yapmamış';return;}
+  if(wrap.classList.contains('hidden')){showForgotQ();return;}
+  const ans=document.getElementById('fg-ans').value.trim().toLowerCase();
+  const np=document.getElementById('fg-np').value.trim();
+  if(ans!==prof.a){e.textContent='Cevap yanlış';return;}
+  if(!np||np.length<3){e.textContent='Geçerli bir yeni şifre giriniz';return;}
+  userProfiles[p].pass=np;
+  writeBin().then(()=>{toast('✓ Şifre sıfırlandı','ok');showLogin();}).catch(err=>{e.textContent='Kayıt hatası: '+err.message;});
+}
+function changeUser(){
+  currentUser=null;isAdmin=false;
+  sessionStorage.clear();localStorage.removeItem('etsy_remember');
+  document.getElementById('lg-pass').value='';
+  document.getElementById('lg-err').textContent='';
+  document.getElementById('lg-remember').checked=false;
+  showLogin();hide('tab-admin-btn');
+}
+function updateChip(){
+  document.getElementById('chip-name').textContent=isAdmin?'⚡ Admin':(currentUser||'—');
+  document.getElementById('chip-dot').style.background=isAdmin?'#f87171':(currentUser?(PCOLORS[currentUser]||'#888'):'#ccc');
+}
+
+// Auto login
+(function(){
+  const u=sessionStorage.getItem('etsy_user');
+  const a=sessionStorage.getItem('etsy_admin');
+  const rem=localStorage.getItem('etsy_remember');
+  if(u&&a==='1'){currentUser='Admin';isAdmin=true;hide('ov-login');updateChip();show('tab-admin-btn');}
+  else if(u){currentUser=u;isAdmin=false;hide('ov-login');updateChip();}
+  else if(rem){
+    const[rp,rs]=rem.split('|');
+    if(rs==='admin'){document.getElementById('lg-person').value='Selim';document.getElementById('lg-pass').value=ADMIN_PASS;document.getElementById('lg-remember').checked=true;}
+    else{document.getElementById('lg-person').value=rp;document.getElementById('lg-pass').value=rs;document.getElementById('lg-remember').checked=true;}
+  }
+})();
+
+// ── TABS ──
+function showTab(n){
+  ['giris','ekip','ozet','grafik','ayarlar','admin'].forEach(x=>document.getElementById('tab-'+x).classList.toggle('hidden',x!==n));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['giris','ekip','ozet','grafik','ayarlar','admin'][i]===n));
+  if(n==='grafik')renderCharts();
+  if(n==='ozet')renderSummary();
+  if(n==='ayarlar')renderMyStoresSettings();
+  if(n==='admin')renderAdmin();
+  if(n==='ekip')renderEkip();
+}
+
+// ── STORES ──
+function myStores(){
+  if(isAdmin)return['Mağaza A','Mağaza B','Mağaza C'];
+  const prof=userProfiles[currentUser];
+  if(!prof)return['Mağaza A','Mağaza B','Mağaza C'];
+  return[prof.stores.a,prof.stores.b,prof.stores.c].filter(Boolean);
+}
+function refreshStoreSelect(){
+  const s=document.getElementById('inp-store');
+  const cur=s.value;const list=myStores();
+  s.innerHTML=list.map(n=>`<option value="${n}">${n}</option>`).join('');
+  if(list.includes(cur))s.value=cur;
+}
+
+// ── STATS & CHANGE ──
+function last30Start(){return daysAgo(30);}
+function prevWeekStart(){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)-7);return d.toISOString().slice(0,10);}
+function prevWeekEnd(){const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7)-1);return d.toISOString().slice(0,10);}
+
+function animCount(el,to){
+  const from=parseInt(el.textContent)||0;if(from===to)return;
+  const dur=450,start=performance.now();
+  const tick=now=>{const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.round(from+(to-from)*e);if(p<1)requestAnimationFrame(tick);};
+  requestAnimationFrame(tick);
+}
+function setChange(el,cur,prev){
+  if(prev===0&&cur===0){el.textContent='—';el.className='card-change neutral';return;}
+  if(prev===0){el.innerHTML='↑ Yeni';el.className='card-change up';return;}
+  const pct=Math.round(((cur-prev)/prev)*100);
+  if(pct>0){el.innerHTML=`↑ %${pct} artış`;el.className='card-change up';}
+  else if(pct<0){el.innerHTML=`↓ %${Math.abs(pct)} azalış`;el.className='card-change down';}
+  else{el.textContent='→ Değişmedi';el.className='card-change neutral';}
+}
+
+function updateStats(){
+  const td=today(),ws=weekStart(),l30=last30Start();
+  const pws=prevWeekStart(),pwe=prevWeekEnd();
+  const yday=daysAgo(1);
+  const pm=daysAgo(60);
+
+  const todayV=entries.filter(e=>e.date===td).reduce((s,e)=>s+e.qty,0);
+  const ydayV=entries.filter(e=>e.date===yday).reduce((s,e)=>s+e.qty,0);
+  const weekV=entries.filter(e=>e.date>=ws).reduce((s,e)=>s+e.qty,0);
+  const pweekV=entries.filter(e=>e.date>=pws&&e.date<=pwe).reduce((s,e)=>s+e.qty,0);
+  const monthV=entries.filter(e=>e.date>=l30).reduce((s,e)=>s+e.qty,0);
+  const pmonthV=entries.filter(e=>e.date>=pm&&e.date<l30).reduce((s,e)=>s+e.qty,0);
+  const allV=entries.reduce((s,e)=>s+e.qty,0);
+
+  animCount(document.getElementById('st-today'),todayV);
+  animCount(document.getElementById('st-week'),weekV);
+  animCount(document.getElementById('st-month'),monthV);
+  animCount(document.getElementById('st-all'),allV);
+  setChange(document.getElementById('ch-today'),todayV,ydayV);
+  setChange(document.getElementById('ch-week'),weekV,pweekV);
+  setChange(document.getElementById('ch-month'),monthV,pmonthV);
+  document.getElementById('ch-all').textContent=entries.length+' kayıt';
+  document.getElementById('ch-all').className='card-change neutral';
+  renderStars();
+}
+
+// ── STARS ──
+function renderStars(){
+  const ws=weekStart(),l30=last30Start();
+  function getTop(list){
+    const t={};PERSONS.forEach(p=>t[p]=0);
+    list.forEach(e=>{if(t[e.person]!==undefined)t[e.person]+=e.qty;});
+    const s=Object.entries(t).sort((a,b)=>b[1]-a[1]);
+    return s[0]&&s[0][1]>0?{name:s[0][0],qty:s[0][1]}:null;
+  }
+  const wstar=getTop(entries.filter(e=>e.date>=ws));
+  const mstar=getTop(entries.filter(e=>e.date>=l30));
+  function html(star){
+    if(!star)return'<div class="star-empty">Henüz veri yok</div>';
+    const c=PCOLORS[star.name]||'#F1641E';
+    return`<div class="star-crown">👑</div>
+      <div class="star-avatar" style="background:${c};box-shadow:0 0 20px ${c}55;">${star.name[0]}</div>
+      <div class="star-name">${star.name}</div>
+      <div class="star-score">${star.qty} satış</div>`;
+  }
+  document.getElementById('star-week-content').innerHTML=html(wstar);
+  document.getElementById('star-month-content').innerHTML=html(mstar);
+}
+
+// ── TABLE ──
+let currentPage=1;
+const PAGE_SIZE=10;
+function clearFilters(){document.getElementById('f-person').value='';document.getElementById('f-period').value='';currentPage=1;renderTable();}
+function renderTable(){
+  const tb=document.getElementById('tbl-body');
+  const fp=document.getElementById('f-person').value;
+  const fd=document.getElementById('f-period').value;
+  const td=today(),ws=weekStart(),l30=last30Start();
+
+  let list=[...entries];
+  if(fp)list=list.filter(e=>e.person===fp);
+  if(fd==='today')list=list.filter(e=>e.date===td);
+  else if(fd==='week')list=list.filter(e=>e.date>=ws);
+  else if(fd==='month')list=list.filter(e=>e.date>=l30);
+
+  list.sort((a,b)=>b.addedAt?.localeCompare(a.addedAt||'')||b.date.localeCompare(a.date));
+  if(!list.length){tb.innerHTML='<tr><td colspan="6" class="empty">Kayıt bulunamadı</td></tr>';renderPagination(0,0);return;}
+
+  const totalPages=Math.ceil(list.length/PAGE_SIZE);
+  if(currentPage>totalPages)currentPage=totalPages;
+  const page=list.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
+
+  tb.innerHTML=page.map(e=>{
+    const sname=(isAdmin||e.person===currentUser)?e.store:'';
+    const sbadge=sname?`<span class="badge bs-store">${sname}</span>`:`<span class="badge bs-hidden">Gizli</span>`;
+    const canDel=isAdmin||e.person===currentUser;
+    const addedAt=e.addedAt?new Date(e.addedAt):null;
+    const timeStr=addedAt?addedAt.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—';
+    const dateStr=addedAt?tr(addedAt.toISOString().slice(0,10)):'—';
+    return`<tr>
+      <td>${tr(e.date)}</td>
+      <td><div class="qty-num" style="font-size:13px">${dateStr}</div><div class="time-small">${timeStr}</div></td>
+      <td><span class="badge ${PBADGE[e.person]||'bp-s'}">${e.person}</span></td>
+      <td>${sbadge}</td>
+      <td><span class="qty-num">${e.qty}</span></td>
+      <td>${canDel?`<button class="del-btn" onclick="delEntry('${e.id}')">✕</button>`:''}</td>
+    </tr>`;
+  }).join('');
+  renderPagination(currentPage, totalPages, list.length);
+}
+function renderPagination(cur, total, count){
+  let el=document.getElementById('pagination');
+  if(!el){
+    el=document.createElement('div');
+    el.id='pagination';
+    el.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.25rem;border-top:1px solid var(--etsy-border);background:var(--etsy-bej);';
+    document.querySelector('.table-box').appendChild(el);
+  }
+  if(total<=1){el.style.display='none';return;}
+  el.style.display='flex';
+  el.innerHTML=`
+    <span style="font-size:12px;color:var(--etsy-gray);font-weight:600">${count} kayıt — Sayfa ${cur}/${total}</span>
+    <div style="display:flex;gap:6px;">
+      <button onclick="changePage(${cur-1})" ${cur===1?'disabled':''} style="height:32px;padding:0 14px;border:2px solid var(--etsy-border);border-radius:8px;background:${cur===1?'var(--etsy-bej2)':'var(--etsy-white)'};color:${cur===1?'var(--etsy-lgray)':'var(--etsy-brown)'};font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;cursor:${cur===1?'default':'pointer'};transition:all 0.2s;">← Önceki</button>
+      <button onclick="changePage(${cur+1})" ${cur===total?'disabled':''} style="height:32px;padding:0 14px;border:2px solid ${cur===total?'var(--etsy-border)':'var(--etsy-orange)'};border-radius:8px;background:${cur===total?'var(--etsy-bej2)':'var(--etsy-orange)'};color:${cur===total?'var(--etsy-lgray)':'#fff'};font-family:'Nunito Sans',sans-serif;font-size:12px;font-weight:700;cursor:${cur===total?'default':'pointer'};transition:all 0.2s;">Sonraki →</button>
+    </div>`;
+}
+function changePage(p){currentPage=p;renderTable();document.querySelector('.table-box').scrollIntoView({behavior:'smooth'});}
+
+// ── SUMMARY ──
+function barRows(items,colors){
+  const max=Math.max(...items.map(i=>i.v),1);
+  return items.map(i=>`<div class="p-row">
+    <div class="p-dot" style="background:${colors[i.k]||'#888'}"></div>
+    <span class="p-name">${i.k}</span>
+    <div class="p-bar-wrap"><div class="p-bar" style="width:${(i.v/max)*100}%;background:${colors[i.k]||'#888'}"></div></div>
+    <span class="p-qty">${i.v}</span>
+  </div>`).join('');
+}
+function renderSummary(){
+  const td=today(),ws=weekStart(),l30=last30Start();
+  const yday=daysAgo(1);
+  const pws=prevWeekStart(),pwe=prevWeekEnd();
+  const pm=daysAgo(60);
+
+  const da=entries.filter(e=>e.date===td);
+  const pda=entries.filter(e=>e.date===yday);
+  const we=entries.filter(e=>e.date>=ws);
+  const mo=entries.filter(e=>e.date>=l30);
+  const pwe2=entries.filter(e=>e.date>=pws&&e.date<=pwe);
+  const pmo=entries.filter(e=>e.date>=pm&&e.date<l30);
+
+  const sl=myStores();
+  const scols={[sl[0]]:MCOLS[0],[sl[1]]:MCOLS[1],[sl[2]]:MCOLS[2]};
+
+  function pChange(cur,prev){
+    if(prev===0&&cur===0)return'';
+    if(prev===0)return`<span style="color:var(--etsy-green);font-size:11px;font-weight:700;margin-left:4px">↑ Yeni</span>`;
+    const pct=Math.round(((cur-prev)/prev)*100);
+    if(pct>0)return`<span style="color:var(--etsy-green);font-size:11px;font-weight:700;margin-left:4px">↑ %${pct}</span>`;
+    if(pct<0)return`<span style="color:var(--etsy-red);font-size:11px;font-weight:700;margin-left:4px">↓ %${Math.abs(pct)}</span>`;
+    return`<span style="color:var(--etsy-gray);font-size:11px;font-weight:700;margin-left:4px">→</span>`;
+  }
+
+  function personRows(curList, prevList, colors){
+    const max=Math.max(...PERSONS.map(p=>curList.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0)),1);
+    return PERSONS.map(p=>{
+      const cur=curList.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0);
+      const prev=prevList.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0);
+      return`<div class="p-row">
+        <div class="p-dot" style="background:${colors[p]||'#888'}"></div>
+        <span class="p-name">${p}</span>
+        <div class="p-bar-wrap"><div class="p-bar" style="width:${(cur/max)*100}%;background:${colors[p]||'#888'}"></div></div>
+        <span class="p-qty">${cur}${pChange(cur,prev)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  function storeRows(curList, prevList, colors){
+    const max=Math.max(...sl.map(s=>curList.filter(e=>e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0)),1);
+    return sl.map(s=>{
+      const cur=curList.filter(e=>e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0);
+      const prev=prevList.filter(e=>e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0);
+      return`<div class="p-row">
+        <div class="p-dot" style="background:${colors[s]||'#888'}"></div>
+        <span class="p-name">${s}</span>
+        <div class="p-bar-wrap"><div class="p-bar" style="width:${(cur/max)*100}%;background:${colors[s]||'#888'}"></div></div>
+        <span class="p-qty">${cur}${pChange(cur,prev)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('sd-person').innerHTML=personRows(da,pda,PCOLORS);
+  document.getElementById('sw-person').innerHTML=personRows(we,pwe2,PCOLORS);
+  document.getElementById('sm-person').innerHTML=personRows(mo,pmo,PCOLORS);
+  document.getElementById('sd-store').innerHTML=storeRows(da,pda,scols);
+  document.getElementById('sw-store').innerHTML=storeRows(we,pwe2,scols);
+  document.getElementById('sm-store').innerHTML=storeRows(mo,pmo,scols);
+}
+
+// ── CHARTS (Pure SVG) ──
+function setChartPeriod(p,btn){
+  chartPeriod=p;
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCharts();
+}
+
+function renderCharts(){
+  const now=new Date(),td=today(),ws=weekStart(),l30=last30Start();
+  const sl=myStores();
+
+  if(chartPeriod==='daily'){
+    // Son 7 gün toplam
+    const days=[],dayV=[];
+    for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);const ds=d.toISOString().slice(0,10);days.push(tr(ds).slice(0,5));dayV.push(entries.filter(e=>e.date===ds).reduce((s,e)=>s+e.qty,0));}
+    svgBar('ch-main',days,dayV,['#F1641E']);
+    document.getElementById('ch-title-1').textContent='Son 7 Gün — Günlük Toplam';
+
+    // Kişi bazlı son 7 gün
+    const pV=PERSONS.map(p=>entries.filter(e=>e.date>=daysAgo(6)&&e.person===p).reduce((s,e)=>s+e.qty,0));
+    svgBar('ch-person',PERSONS,pV,PERSONS.map(p=>PCOLORS[p]));
+    document.getElementById('ch-title-2').textContent='Son 7 Gün — Kişi Karşılaştırma';
+
+    // Mağaza karşılaştırma son 7 gün
+    const sV=sl.map(s=>entries.filter(e=>e.date>=daysAgo(6)&&e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0));
+    svgDonut('ch-store',sl,sV,MCOLS);
+    document.getElementById('ch-title-3').textContent='Son 7 Gün — Mağaza Dağılımı';
+
+  } else if(chartPeriod==='weekly'){
+    // Son 4 hafta toplam
+    const wks=[],wkV=[];
+    for(let i=3;i>=0;i--){const ws2=new Date(now);ws2.setDate(now.getDate()-((now.getDay()+6)%7)-i*7);const we2=new Date(ws2);we2.setDate(ws2.getDate()+6);const wss=ws2.toISOString().slice(0,10),wes=we2.toISOString().slice(0,10);wks.push(tr(wss).slice(0,5));wkV.push(entries.filter(e=>e.date>=wss&&e.date<=wes).reduce((s,e)=>s+e.qty,0));}
+    svgLine('ch-main',wks,wkV,'#F1641E');
+    document.getElementById('ch-title-1').textContent='Son 4 Hafta — Haftalık Toplam';
+
+    // Kişi bazlı haftalık
+    const pV=PERSONS.map(p=>entries.filter(e=>e.date>=ws&&e.person===p).reduce((s,e)=>s+e.qty,0));
+    svgBar('ch-person',PERSONS,pV,PERSONS.map(p=>PCOLORS[p]));
+    document.getElementById('ch-title-2').textContent='Bu Hafta — Kişi Karşılaştırma';
+
+    // Mağaza karşılaştırma haftalık
+    const sV=sl.map(s=>entries.filter(e=>e.date>=ws&&e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0));
+    svgDonut('ch-store',sl,sV,MCOLS);
+    document.getElementById('ch-title-3').textContent='Bu Hafta — Mağaza Dağılımı';
+
+  } else {
+    // Son 30 gün toplam
+    const days=[],dayV=[];
+    for(let i=29;i>=0;i-=3){const d=new Date(now);d.setDate(now.getDate()-i);const ds=d.toISOString().slice(0,10);days.push(tr(ds).slice(0,5));dayV.push(entries.filter(e=>e.date>=daysAgo(i+2)&&e.date<=ds).reduce((s,e)=>s+e.qty,0));}
+    svgBar('ch-main',days,dayV,['#F1641E']);
+    document.getElementById('ch-title-1').textContent='Son 30 Gün — Toplam';
+
+    // Kişi bazlı son 30 gün
+    const pV=PERSONS.map(p=>entries.filter(e=>e.date>=l30&&e.person===p).reduce((s,e)=>s+e.qty,0));
+    svgBar('ch-person',PERSONS,pV,PERSONS.map(p=>PCOLORS[p]));
+    document.getElementById('ch-title-2').textContent='Son 30 Gün — Kişi Karşılaştırma';
+
+    // Mağaza karşılaştırma son 30 gün
+    const sV=sl.map(s=>entries.filter(e=>e.date>=l30&&e.person===currentUser&&(e.store||sl[0])===s).reduce((s,e)=>s+e.qty,0));
+    svgDonut('ch-store',sl,sV,MCOLS);
+    document.getElementById('ch-title-3').textContent='Son 30 Gün — Mağaza Dağılımı';
+  }
+
+  // Haftalık kişi bazlı karşılaştırma (her zaman göster)
+  const wkPersonLabels=[];
+  const wkPersonData=PERSONS.map(()=>[]);
+  for(let i=3;i>=0;i--){
+    const ws2=new Date(now);ws2.setDate(now.getDate()-((now.getDay()+6)%7)-i*7);
+    const we2=new Date(ws2);we2.setDate(ws2.getDate()+6);
+    const wss=ws2.toISOString().slice(0,10),wes=we2.toISOString().slice(0,10);
+    wkPersonLabels.push(tr(wss).slice(0,5));
+    PERSONS.forEach((p,pi)=>wkPersonData[pi].push(entries.filter(e=>e.date>=wss&&e.date<=wes&&e.person===p).reduce((s,e)=>s+e.qty,0)));
+  }
+  svgGroupedBar('ch-weekly-person',wkPersonLabels,wkPersonData,PERSONS,PERSONS.map(p=>PCOLORS[p]));
+}
+
+// SVG CHART FUNCTIONS
+function svgBar(id,labels,values,colors){
+  const el=document.getElementById(id);if(!el)return;
+  const W=el.offsetWidth||300,H=185;
+  const max=Math.max(...values,1);
+  const n=labels.length;
+  const pad={t:14,b:36,l:10,r:10};
+  const gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  const bW=Math.max(4,(gW/n)*0.6);
+  const gap=(gW-bW*n)/(n+1);
+  const grid=[0,0.25,0.5,0.75,1].map(p=>{
+    const y=pad.t+gH*(1-p);
+    return`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#F4EDE4" stroke-width="1"/>`;
+  }).join('');
+  const bars=labels.map((l,i)=>{
+    const x=pad.l+gap+(bW+gap)*i;
+    const bH=Math.max(2,(values[i]/max)*gH);
+    const y=pad.t+gH-bH;
+    const col=Array.isArray(colors)&&colors.length>1?colors[i]:colors[0];
+    return`<rect x="${x}" y="${y}" width="${bW}" height="${bH}" rx="4" fill="${col}" opacity="0.85"/>
+      <text x="${x+bW/2}" y="${H-pad.b+14}" fill="#757575" font-size="9" font-family="Nunito Sans" text-anchor="middle">${l}</text>
+      ${values[i]>0?`<text x="${x+bW/2}" y="${y-5}" fill="${col}" font-size="9" font-family="Nunito Sans" text-anchor="middle" font-weight="700">${values[i]}</text>`:''}`;
+  }).join('');
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${grid}${bars}</svg>`;
+}
+
+function svgGroupedBar(id,labels,datasets,dsLabels,colors){
+  const el=document.getElementById(id);if(!el)return;
+  const W=el.offsetWidth||300,H=185;
+  const allV=datasets.flat();
+  const max=Math.max(...allV,1);
+  const n=labels.length,ds=datasets.length;
+  const pad={t:14,b:50,l:10,r:10};
+  const gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  const groupW=gW/n;
+  const bW=Math.max(2,(groupW*0.7)/ds);
+  const grid=[0,0.5,1].map(p=>{
+    const y=pad.t+gH*(1-p);
+    return`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#F4EDE4" stroke-width="1"/>`;
+  }).join('');
+  let bars='';
+  labels.forEach((l,gi)=>{
+    const gx=pad.l+gi*groupW+groupW*0.15;
+    datasets.forEach((d,di)=>{
+      const v=d[gi];
+      const x=gx+di*(bW+1);
+      const bH=Math.max(1,(v/max)*gH);
+      const y=pad.t+gH-bH;
+      if(v>0)bars+=`<rect x="${x}" y="${y}" width="${bW}" height="${bH}" rx="2" fill="${colors[di]}" opacity="0.8"/>`;
+    });
+    bars+=`<text x="${pad.l+gi*groupW+groupW/2}" y="${H-pad.b+12}" fill="#757575" font-size="8" font-family="Nunito Sans" text-anchor="middle">${l}</text>`;
+  });
+  const legend=dsLabels.map((l,i)=>`
+    <rect x="${10+i*((W-20)/ds)}" y="${H-14}" width="8" height="8" rx="2" fill="${colors[i]}"/>
+    <text x="${22+i*((W-20)/ds)}" y="${H-7}" fill="#757575" font-size="8" font-family="Nunito Sans">${l}</text>`).join('');
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${grid}${bars}${legend}</svg>`;
+}
+
+function svgLine(id,labels,values,color){
+  const el=document.getElementById(id);if(!el)return;
+  const W=el.offsetWidth||300,H=185;
+  const max=Math.max(...values,1);
+  const n=labels.length;
+  const pad={t:20,b:36,l:10,r:10};
+  const gW=W-pad.l-pad.r,gH=H-pad.t-pad.b;
+  const pts=labels.map((_,i)=>({x:pad.l+(i/(n-1||1))*gW,y:pad.t+gH*(1-values[i]/max)}));
+  const grid=[0,0.5,1].map(p=>{
+    const y=pad.t+gH*(1-p);
+    return`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#F4EDE4" stroke-width="1"/>`;
+  }).join('');
+  const pathD='M '+pts.map(p=>`${p.x},${p.y}`).join(' L ');
+  const areaD=pathD+` L ${pts[pts.length-1].x},${pad.t+gH} L ${pts[0].x},${pad.t+gH} Z`;
+  const dots=pts.map((p,i)=>`
+    <circle cx="${p.x}" cy="${p.y}" r="5" fill="${color}" stroke="#fff" stroke-width="2"/>
+    ${values[i]>0?`<text x="${p.x}" y="${p.y-10}" fill="${color}" font-size="10" font-family="Nunito Sans" text-anchor="middle" font-weight="700">${values[i]}</text>`:''}
+    <text x="${p.x}" y="${H-pad.b+14}" fill="#757575" font-size="9" font-family="Nunito Sans" text-anchor="middle">${labels[i]}</text>`).join('');
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="lg${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.15"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+    ${grid}<path d="${areaD}" fill="url(#lg${id})"/>
+    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}</svg>`;
+}
+
+function svgDonut(id,labels,values,colors){
+  const el=document.getElementById(id);if(!el)return;
+  const W=el.offsetWidth||300,H=185;
+  const total=values.reduce((s,v)=>s+v,0)||1;
+  const cx=W/2,cy=(H-44)/2+10,r=62,ri=40;
+  let angle=-Math.PI/2;
+  const slices=values.map((v,i)=>{
+    const sweep=(v/total)*2*Math.PI;
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle);
+    angle+=sweep;
+    const x2=cx+r*Math.cos(angle),y2=cy+r*Math.sin(angle);
+    const xi1=cx+ri*Math.cos(angle-sweep),yi1=cy+ri*Math.sin(angle-sweep);
+    const xi2=cx+ri*Math.cos(angle),yi2=cy+ri*Math.sin(angle);
+    const large=sweep>Math.PI?1:0;
+    return v===0?'':`<path d="M${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} L${xi2},${yi2} A${ri},${ri} 0 ${large} 0 ${xi1},${yi1} Z" fill="${colors[i]||'#ccc'}" opacity="0.9"/>`;
+  }).join('');
+  const legend=labels.map((l,i)=>{
+    const lx=10+i*((W-20)/labels.length);
+    return`<rect x="${lx}" y="${H-22}" width="10" height="10" rx="3" fill="${colors[i]||'#ccc'}"/>
+    <text x="${lx+14}" y="${H-13}" fill="#757575" font-size="9" font-family="Nunito Sans">${l}(${values[i]})</text>`;
+  }).join('');
+  el.innerHTML=`<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${slices}
+    <circle cx="${cx}" cy="${cy}" r="${ri}" fill="white"/>
+    <text x="${cx}" y="${cy+5}" fill="#333" font-size="15" font-family="Nunito Sans" text-anchor="middle" font-weight="800">${total}</text>
+    <text x="${cx}" y="${cy+18}" fill="#757575" font-size="8" font-family="Nunito Sans" text-anchor="middle">TOPLAM</text>
+    ${legend}</svg>`;
+}
+
+// ── SETTINGS ──
+function renderMyStoresSettings(){
+  if(!currentUser||isAdmin)return;
+  const prof=userProfiles[currentUser];if(!prof)return;
+  document.getElementById('my-stores-wrap').innerHTML=['a','b','c'].map((k,i)=>`
+    <div class="s-row"><label>${i+1}. Mağaza</label><input class="s-input" id="ms-${k}" type="text" value="${prof.stores[k]||''}" maxlength="40"/></div>`).join('');
+}
+async function saveMyStores(){
+  if(!currentUser||isAdmin)return;
+  const a=document.getElementById('ms-a').value.trim();
+  const b=document.getElementById('ms-b').value.trim();
+  const c=document.getElementById('ms-c').value.trim();
+  if(!a||!b||!c){toast('İsimler boş olamaz','error');return;}
+  if(new Set([a,b,c]).size<3){toast('İsimler farklı olmalı','error');return;}
+  const old=userProfiles[currentUser].stores;
+  entries=entries.map(e=>{if(e.person!==currentUser)return e;return{...e,store:e.store===old.a?a:e.store===old.b?b:e.store===old.c?c:e.store};});
+  userProfiles[currentUser].stores={a,b,c};
+  try{await writeBin();refreshStoreSelect();renderTable();toast('✓ Mağaza isimleri kaydedildi','ok');}
+  catch(err){toast('Kayıt hatası: '+err.message,'error');}
+}
+async function changePass(){
+  const o=document.getElementById('set-old').value;
+  const n=document.getElementById('set-new').value;
+  const n2=document.getElementById('set-new2').value;
+  if(!o||!n||!n2){toast('Tüm alanları doldurun','error');return;}
+  if(!userProfiles[currentUser]||userProfiles[currentUser].pass!==o){toast('Mevcut şifre hatalı','error');return;}
+  if(n!==n2){toast('Yeni şifreler eşleşmiyor','error');return;}
+  if(n.length<3){toast('Şifre en az 3 karakter olmalı','error');return;}
+  userProfiles[currentUser].pass=n;
+  try{await writeBin();['set-old','set-new','set-new2'].forEach(id=>document.getElementById(id).value='');toast('✓ Şifre güncellendi','ok');}
+  catch(err){toast('Kayıt hatası: '+err.message,'error');}
+}
+
+// ── ADMIN ──
+function renderAdmin(){
+  const td=today(),ws=weekStart(),l30=last30Start();
+  document.getElementById('admin-users').innerHTML=PERSONS.map(p=>{
+    const prof=userProfiles[p];
+    return`<div class="user-card">
+      <div class="uc-dot" style="background:${PCOLORS[p]}"></div>
+      <span class="uc-name">${p}</span>
+      <span class="uc-status">${prof&&prof.setup?'✓ Aktif':'⏳ Kurulum bekliyor'}</span>
+      ${prof&&prof.setup?`<button class="btn-reset" onclick="adminReset('${p}')">Sıfırla</button>`:''}
+    </div>`;
+  }).join('');
+
+  const todayT=entries.filter(e=>e.date===td).reduce((s,e)=>s+e.qty,0);
+  const weekT=entries.filter(e=>e.date>=ws).reduce((s,e)=>s+e.qty,0);
+  const monthT=entries.filter(e=>e.date>=l30).reduce((s,e)=>s+e.qty,0);
+  const allT=entries.reduce((s,e)=>s+e.qty,0);
+  document.getElementById('admin-report').innerHTML=[
+    {l:'Bugün toplam',v:todayT},{l:'Bu hafta',v:weekT},
+    {l:'Son 30 gün',v:monthT},{l:'Genel toplam',v:allT},
+    {l:'Toplam kayıt',v:entries.length+' adet'}
+  ].map(r=>`<div class="report-row"><span>${r.l}</span><span class="report-val">${r.v}</span></div>`).join('');
+
+  const sorted=[...entries].sort((a,b)=>(b.addedAt||'').localeCompare(a.addedAt||''));
+  document.getElementById('admin-tbl').innerHTML=sorted.map(e=>{
+    const at=e.addedAt?new Date(e.addedAt):null;
+    const ts=at?tr(at.toISOString().slice(0,10))+' '+at.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}):'—';
+    return`<tr>
+      <td>${tr(e.date)}</td><td class="time-small">${ts}</td>
+      <td><span class="badge ${PBADGE[e.person]||'bp-s'}">${e.person}</span></td>
+      <td><span class="badge bs-store">${e.store||'?'}</span></td>
+      <td><span class="qty-num">${e.qty}</span></td>
+      <td><button class="del-btn" onclick="delEntry('${e.id}')">✕</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="6" class="empty">Kayıt yok</td></tr>';
+}
+async function adminReset(p){
+  if(!confirm(`${p} kullanıcısı sıfırlansın mı?`))return;
+  userProfiles[p]={...userProfiles[p],setup:false,pass:''};
+  try{await writeBin();renderAdmin();toast(`✓ ${p} sıfırlandı`,'ok');}
+  catch(err){toast('Hata: '+err.message,'error');}
+}
+
+// ── DARK MODE ──
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  const dark=document.body.classList.contains('dark');
+  document.getElementById('dm-btn').textContent=dark?'☀️':'🌙';
+  localStorage.setItem('etsy_dark',dark?'1':'0');
+}
+(function(){
+  if(localStorage.getItem('etsy_dark')==='1'){
+    document.body.classList.add('dark');
+    document.getElementById('dm-btn').textContent='☀️';
+  }
+})();
+
+// ── THEME ──
+function setTheme(cls,color,el){
+  ['theme-blue','theme-green','theme-purple','theme-pink'].forEach(c=>document.body.classList.remove(c));
+  if(cls)document.body.classList.add(cls);
+  document.querySelectorAll('.theme-dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+  localStorage.setItem('etsy_theme',cls);
+}
+(function(){
+  const t=localStorage.getItem('etsy_theme');
+  if(t){
+    document.body.classList.add(t);
+    const colors={'':{i:0},'theme-blue':{i:1},'theme-green':{i:2},'theme-purple':{i:3},'theme-pink':{i:4}};
+    const dots=document.querySelectorAll('.theme-dot');
+    dots.forEach(d=>d.classList.remove('active'));
+    if(dots[colors[t]?.i])dots[colors[t].i].classList.add('active');
+  }
+})();
+
+// ── REACTIONS ──
+const REACT_EMOJIS=['🔥','👏','🚀','❤️','💯'];
+const REACT_IDS=['fire','clap','rocket','heart','100'];
+function getReactions(){return userProfiles._reactions||{};}
+function toggleReact(emoji){
+  if(!currentUser)return;
+  if(!userProfiles._reactions)userProfiles._reactions={};
+  const r=userProfiles._reactions;
+  if(!r[emoji])r[emoji]=[];
+  const idx=r[emoji].indexOf(currentUser);
+  if(idx>-1)r[emoji].splice(idx,1);
+  else r[emoji].push(currentUser);
+  writeBin().then(()=>renderReactions()).catch(()=>{});
+  renderReactions();
+}
+function renderReactions(){
+  const r=getReactions();
+  REACT_EMOJIS.forEach((e,i)=>{
+    const id=REACT_IDS[i];
+    const users=r[e]||[];
+    document.getElementById('rc-'+id).textContent=users.length||0;
+    const btn=document.getElementById('r-'+id);
+    if(btn)btn.classList.toggle('reacted',currentUser&&users.includes(currentUser));
+  });
+}
+
+// ── BADGES ──
+const BADGE_DEFS=[
+  {id:'streak5',icon:'🔥',name:'5 Gün Serisi',desc:'5 gün üst üste satış'},
+  {id:'day10',icon:'💫',name:'Süper Gün',desc:'Günde 10+ satış'},
+];
+function checkBadges(person){
+  const earned=[];
+  // Streak 5
+  let streak=0,maxStreak=0;
+  const dates=[...new Set(entries.filter(e=>e.person===person).map(e=>e.date))].sort();
+  for(let i=0;i<dates.length;i++){
+    if(i===0){streak=1;}
+    else{
+      const prev=new Date(dates[i-1]),cur=new Date(dates[i]);
+      const diff=(cur-prev)/(1000*60*60*24);
+      streak=diff===1?streak+1:1;
+    }
+    maxStreak=Math.max(maxStreak,streak);
+  }
+  if(maxStreak>=5)earned.push('streak5');
+  // Day 10+
+  const dayTotals={};
+  entries.filter(e=>e.person===person).forEach(e=>{dayTotals[e.date]=(dayTotals[e.date]||0)+e.qty;});
+  if(Object.values(dayTotals).some(v=>v>=10))earned.push('day10');
+  return earned;
+}
+function renderLeaderboard(elId, filtered){
+  const scores=PERSONS.map(p=>({p,v:filtered.filter(e=>e.person===p).reduce((s,e)=>s+e.qty,0)})).sort((a,b)=>b.v-a.v);
+  const maxV=Math.max(...scores.map(s=>s.v),1);
+  const ranks=['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const el=document.getElementById(elId);
+  if(!el)return;
+  if(scores.every(s=>s.v===0)){
+    el.innerHTML=`<div style="text-align:center;padding:1.5rem;color:var(--etsy-gray);font-size:13px">📭 Henüz satış yok</div>`;
+    return;
+  }
+  el.innerHTML=scores.map((s,i)=>{
+    const isMe=s.p===currentUser;
+    return`<div class="leader-row" style="${isMe?'background:var(--etsy-orange-l);border-radius:10px;':''}">
+      <div class="leader-rank" style="font-size:1.1rem;min-width:26px">${s.v>0?(ranks[i]||i+1+'.'):'—'}</div>
+      <div class="leader-avatar" style="background:${PCOLORS[s.p]};width:32px;height:32px;font-size:0.9rem">${s.p[0]}</div>
+      <div class="leader-info">
+        <div class="leader-name" style="font-size:13px">${s.p}${isMe?' <span style="font-size:10px;color:var(--etsy-orange)">(sen)</span>':''}</div>
+      </div>
+      <div class="leader-bar-wrap"><div class="leader-bar" style="width:${s.v>0?(s.v/maxV)*100:0}%;background:${PCOLORS[s.p]}"></div></div>
+      <div class="leader-score" style="font-size:14px">${s.v}</div>
+    </div>`;
+  }).join('');
+}
+function renderEkip(){
+  document.getElementById('badge-user-name').textContent=currentUser||'';
+  const td=today(),ws=weekStart(),l30=last30Start();
+  renderLeaderboard('leaderboard-daily', entries.filter(e=>e.date===td));
+  renderLeaderboard('leaderboard-weekly', entries.filter(e=>e.date>=ws));
+  renderLeaderboard('leaderboard-monthly', entries.filter(e=>e.date>=l30));
+  if(currentUser&&!isAdmin){
+    const earned=checkBadges(currentUser);
+    document.getElementById('badge-grid').innerHTML=BADGE_DEFS.map(b=>`
+      <div class="badge-card ${earned.includes(b.id)?'earned':'locked'}">
+        <div class="badge-icon">${b.icon}</div>
+        <div class="badge-name">${b.name}</div>
+        <div class="badge-desc">${b.desc}</div>
+        ${earned.includes(b.id)?'<div style="font-size:11px;color:var(--etsy-orange);font-weight:700;margin-top:4px">✓ Kazanıldı</div>':''}
+      </div>`).join('');
+  }
+}
+
+// ── API (Supabase) ──
+const SB_URL='https://vdvqpbatpccnwvjecffy.supabase.co';
+const SB_KEY='sb_publishable_hLg3AlaKGXeULPhbJvGVGQ_ljn1iQNJ';
+
+async function readBin(){
+  const r=await fetch(`${SB_URL}/rest/v1/data?id=eq.main&select=content`,{
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+  });
+  if(!r.ok)throw new Error('Read failed: '+r.status);
+  const j=await r.json();
+  return j[0]?.content||null;
+}
+async function writeBin(){
+  const r=await fetch(`${SB_URL}/rest/v1/data?id=eq.main`,{
+    method:'PATCH',
+    headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify({content:{entries,userProfiles}})
+  });
+  if(!r.ok)throw new Error('Write failed: '+r.status);
+}
+
+async function loadData(){
+  document.getElementById('status-line').textContent='Güncelleniyor…';
+  try{
+    const rec=await readBin();
+    entries=(rec?.entries)||[];
+    if(rec?.userProfiles)userProfiles=rec.userProfiles;
+    refreshStoreSelect();renderTable();updateStats();renderReactions();
+    if(currentUser&&!isAdmin)document.getElementById('inp-person').value=currentUser;
+    document.getElementById('status-line').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR');
+    document.getElementById('live-status').style.opacity='1';
+  }catch{
+    document.getElementById('status-line').textContent='Bağlantı hatası';
+    document.getElementById('live-status').style.opacity='0.4';
+    toast('Veriler yüklenemedi','error');
+  }
+}
+
+async function addEntry(){
+  const date=document.getElementById('inp-date').value;
+  const person=document.getElementById('inp-person').value;
+  const store=document.getElementById('inp-store').value;
+  const qty=parseInt(document.getElementById('inp-qty').value,10);
+  if(!date||!person||!qty||qty<1){toast('Lütfen tüm alanları doldurun','error');return;}
+  const entry={id:String(Date.now()),date,person,store,qty,addedAt:new Date().toISOString()};
+  entries.push(entry);currentPage=1;renderTable();updateStats();
+  let saved=false;
+  for(let i=0;i<3;i++){try{await writeBin();saved=true;break;}catch{await new Promise(r=>setTimeout(r,1000));}}
+  if(saved){toast('✓ Satış eklendi','ok');document.getElementById('inp-qty').value=1;document.getElementById('status-line').textContent='Son güncelleme: '+new Date().toLocaleTimeString('tr-TR');}
+  else{entries=entries.filter(e=>e.id!==entry.id);renderTable();updateStats();toast('Bağlantı hatası, tekrar dene','error');}
+}
+
+async function delEntry(id){
+  const prev=[...entries];entries=entries.filter(e=>String(e.id)!==String(id));renderTable();updateStats();
+  try{await writeBin();toast('Kayıt silindi');}
+  catch{entries=prev;renderTable();updateStats();toast('Silme hatası','error');}
+}
+
+let lastAct=Date.now();
+document.addEventListener('click',()=>lastAct=Date.now());
+document.addEventListener('keydown',()=>lastAct=Date.now());
+setInterval(()=>{if(Date.now()-lastAct>30000)loadData();},60000);
+
+loadData();
+</script>
+</body>
+</html>
